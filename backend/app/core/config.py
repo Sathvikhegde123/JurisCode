@@ -59,6 +59,15 @@ class Settings:
     OBJECTION_ADAPTER_PATH: str = _resolve_path(
         os.getenv("OBJECTION_ADAPTER_PATH", "./models/objection_evaluator_lora")
     )
+    # GGUF Model Paths
+    PREMISE_GGUF_PATH: str = _resolve_path(
+        os.getenv("PREMISE_GGUF_PATH", "../models/premise_generator_Q4_K_M.gguf")
+    )
+    OPPOSING_COUNSEL_GGUF_PATH: str = _resolve_path(
+        os.getenv("OPPOSING_COUNSEL_GGUF_PATH", "../models/opposing_counsel_Q4_K_M.gguf")
+    )
+    GGUF_N_CTX: int = _get_int("GGUF_N_CTX", 1024)
+    GGUF_N_GPU_LAYERS: int = _get_int("GGUF_N_GPU_LAYERS", -1)
     USE_4BIT: bool = _get_bool("USE_4BIT", False)
     DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
     DEFAULT_MAX_NEW_TOKENS: int = _get_int("DEFAULT_MAX_NEW_TOKENS", 300)

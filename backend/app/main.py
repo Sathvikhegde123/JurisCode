@@ -16,7 +16,7 @@ from app.routers import health, objection, opposing, practice, premise
 async def lifespan(_app: FastAPI):
     print("=" * 64)
     print("JurisCode Bharat — Legal Reasoning & Trial Practice API")
-    print("Starting model load (local Hugging Face + PEFT only)...")
+    print("Starting model load (local GGUF via llama-cpp-python)...")
     print("=" * 64)
     if not torch.cuda.is_available():
         print("WARNING: Running without CUDA. Inference will use CPU and may be very slow.")
@@ -33,7 +33,7 @@ app = FastAPI(
     title="JurisCode Bharat - Legal Reasoning & Trial Practice API",
     description=(
         "AI-based Indian property litigation training platform backend. "
-        "Runs local Qwen2.5-3B-Instruct with switchable LoRA adapters."
+        "Runs local GGUF models via llama-cpp-python."
     ),
     lifespan=lifespan,
 )
