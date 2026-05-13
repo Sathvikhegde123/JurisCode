@@ -1,20 +1,28 @@
-# Dataset Generation
+# Backend Architecture - JurisCode Bharat
 
-This folder contains scripts and source data used to create the training datasets for the JurisCode Bharat LoRA adapters.
+This document describes the high-level architecture of the JurisCode Bharat backend.
 
-## Scripts
+## System Architecture
 
-- `generate_dataset.py`: Main script for generating synthetic legal data.
-- `premise_generation.py`: Specific logic for creating case premises.
-- `changing_system_promt_opposing.py`: Utility for adjusting system prompts for dataset diversity.
-- `test_objection.jsonl` / `train_objection.jsonl`: Datasets for the objection evaluator model.
-- `property_litigation_opposing_counsel_dataset_3000_updated.jsonl`: Large-scale dataset for opposing counsel training.
-
-## Usage
-
-These scripts are typically used during the research and development phase to prepare fine-tuning data for the Qwen base model.
-ts.
-/models/]
+```mermaid
+graph TD
+    Client[Client - Web/Mobile] --> API[FastAPI Gateway]
+    
+    subgraph "FastAPI Application"
+        API --> Routers[Routers /endpoints]
+        Routers --> Services[Services /business logic]
+        Services --> ModelManager[ModelManager /singleton]
+    end
+    
+    subgraph "Model Layer (Local Inference)"
+        ModelManager --> BaseLLM[Qwen2.5-3B-Instruct]
+        BaseLLM --> Adapter1[Premise LoRA]
+        BaseLLM --> Adapter2[Opposing Counsel LoRA]
+        BaseLLM --> Adapter3[Objection Evaluator LoRA]
+    end
+    
+    subgraph "Storage"
+        Adapter1 -.-> ModelsDir[./models/]
         Adapter2 -.-> ModelsDir
         Adapter3 -.-> ModelsDir
     end

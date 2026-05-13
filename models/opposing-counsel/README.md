@@ -1,62 +1,14 @@
----
-base_model: Qwen/Qwen2.5-3B-Instruct
-library_name: peft
-model_name: qwen-opposing-counsel-v1-r32-512-final
-tags:
-- base_model:adapter:Qwen/Qwen2.5-3B-Instruct
-- lora
-- sft
-- transformers
-- trl
-licence: license
-pipeline_tag: text-generation
----
+# Opposing Counsel Production Model
 
-# Model Card for qwen-opposing-counsel-v1-r32-512-final
+This folder contains the production-ready LoRA adapter for the Opposing Counsel simulator.
 
-This model is a fine-tuned version of [Qwen/Qwen2.5-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct).
-It has been trained using [TRL](https://github.com/huggingface/trl).
+## Files
 
-## Quick start
+- `adapter_model.safetensors`: The trained LoRA weights.
+- `adapter_config.json`: PEFT configuration.
+- `tokenizer_config.json` / `tokenizer.json`: Tokenizer settings.
+- `chat_template.jinja`: Template for formatting interactions with the opposing counsel.
 
-```python
-from transformers import pipeline
+## Deployment
 
-question = "If you had a time machine, but could only go to the past or the future once and never return, which would you choose and why?"
-generator = pipeline("text-generation", model="None", device="cuda")
-output = generator([{"role": "user", "content": question}], max_new_tokens=128, return_full_text=False)[0]
-print(output["generated_text"])
-```
-
-## Training procedure
-
- 
-
-
-
-This model was trained with SFT.
-
-### Framework versions
-
-- PEFT 0.19.1
-- TRL: 1.4.0
-- Transformers: 5.8.1
-- Pytorch: 2.11.0+cu128
-- Datasets: 4.8.5
-- Tokenizers: 0.22.2
-
-## Citations
-
-
-
-Cite TRL as:
-    
-```bibtex
-@software{vonwerra2020trl,
-  title   = {{TRL: Transformers Reinforcement Learning}},
-  author  = {von Werra, Leandro and Belkada, Younes and Tunstall, Lewis and Beeching, Edward and Thrush, Tristan and Lambert, Nathan and Huang, Shengyi and Rasul, Kashif and Gallouédec, Quentin},
-  license = {Apache-2.0},
-  url     = {https://github.com/huggingface/trl},
-  year    = {2020}
-}
-```
+This model is loaded by the `ModelManager` when the `OPPOSING_COUNSEL_ADAPTER_PATH` is set to this directory in the backend `.env` file.

@@ -1,62 +1,19 @@
----
-base_model: Qwen/Qwen2.5-3B-Instruct
-library_name: peft
-model_name: qwen-property-premise-generator-v1-r32
-tags:
-- base_model:adapter:Qwen/Qwen2.5-3B-Instruct
-- lora
-- sft
-- transformers
-- trl
-licence: license
-pipeline_tag: text-generation
----
+# Premise Models
 
-# Model Card for qwen-property-premise-generator-v1-r32
+This directory contains various iterations of the Premise Generator model, which creates realistic legal case foundations for property litigation.
 
-This model is a fine-tuned version of [Qwen/Qwen2.5-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct).
-It has been trained using [TRL](https://github.com/huggingface/trl).
+## Model Variants
 
-## Quick start
+- `v1-r32`, `v2-r32`: Progressive versions of the premise generator.
+- `pack-true-r32`, `pack-false-r32`: Experiments testing the impact of sequence packing during fine-tuning.
 
-```python
-from transformers import pipeline
+## Documentation
 
-question = "If you had a time machine, but could only go to the past or the future once and never return, which would you choose and why?"
-generator = pipeline("text-generation", model="None", device="cuda")
-output = generator([{"role": "user", "content": question}], max_new_tokens=128, return_full_text=False)[0]
-print(output["generated_text"])
-```
+- `MODEL_ADAPTER_MAPPING.md`: Documentation of which adapter corresponds to which version.
+- `MODEL_MAPPING_NEEDED.md`: Pending mapping tasks.
 
-## Training procedure
+## Data & Benchmarks
 
- 
-
-
-
-This model was trained with SFT.
-
-### Framework versions
-
-- PEFT 0.19.1
-- TRL: 1.4.0
-- Transformers: 5.0.0
-- Pytorch: 2.10.0+cu128
-- Datasets: 4.8.5
-- Tokenizers: 0.22.2
-
-## Citations
-
-
-
-Cite TRL as:
-    
-```bibtex
-@software{vonwerra2020trl,
-  title   = {{TRL: Transformers Reinforcement Learning}},
-  author  = {von Werra, Leandro and Belkada, Younes and Tunstall, Lewis and Beeching, Edward and Thrush, Tristan and Lambert, Nathan and Huang, Shengyi and Rasul, Kashif and Gallouédec, Quentin},
-  license = {Apache-2.0},
-  url     = {https://github.com/huggingface/trl},
-  year    = {2020}
-}
-```
+- `property_premise_dataset.jsonl` / `property_premise_dataset_train_ready.jsonl`: Training datasets.
+- `property_premise_benchmark.json`: Evaluation benchmark for premise generation.
+- `run_dual_premise_model_json_benchmark.py`: Comparative benchmarking script.
