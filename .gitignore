@@ -1,0 +1,55 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+*.key
+*.pem
+secrets.json
+serviceAccountKey.json
+*.secret
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Training/cache junk
+cache/
+wandb/
+runs/
+checkpoints/
+
+# Future frontend
+node_modules/
+dist/
+build/
+.next/
+.env.local
+
+# Hugging Face / ML caches
+.cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Duplicate local adapter trees under backend (canonical weights: /models/)
+backend/models/
