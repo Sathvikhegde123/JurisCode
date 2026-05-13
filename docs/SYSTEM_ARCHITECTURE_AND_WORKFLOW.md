@@ -4,6 +4,38 @@ This document uses **Mermaid** diagrams. **Mock trial** flows and the **Citizen 
 
 ---
 
+## SYSTEM ARCHITECTURE
+graph TD
+    Client[Client - Web / Mobile] --> API[FastAPI Gateway]
+
+    subgraph FastAPI_App["FastAPI Application"]
+        API --> Routers[Routers / Endpoints]
+        Routers --> Services[Services / Business Logic]
+        Services --> ModelManager[ModelManager / Singleton]
+        Services --> SessionStore[Session Store / In-Memory History]
+    end
+
+    subgraph Storage["Local Storage"]
+        ModelsDir[./models/]
+    end
+
+    subgraph ModelLayer["Model Layer - Local Inference"]
+        BaseLLM[Qwen2.5-3B-Instruct Base Model]
+        Adapter1[Premise Generator LoRA]
+        Adapter2[Opposing Counsel LoRA]
+        Adapter3[Property Objection / Weakness Detector LoRA]
+    end
+
+    ModelsDir -. loads .-> ModelManager
+    ModelManager --> BaseLLM
+    BaseLLM --> Adapter1
+    BaseLLM --> Adapter2
+    BaseLLM --> Adapter3
+
+
+
+
+
 ## 1. Original Mock Trial Workflow
 
 ```mermaid
