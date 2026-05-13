@@ -1,0 +1,161 @@
+{
+  "model_name": "packing_true",
+  "base_model": "Qwen/Qwen2.5-3B-Instruct",
+  "adapter_path": "C:\\Users\\Prakhar Parashar\\Documents\\Opposing_counsel_model\\qwen-opposing-counsel-v1-r32-512-packtrue",
+  "benchmark_file": "property_opposing_counsel_benchmark.json",
+  "system_prompt": "You are adversarial Indian opposing counsel in a property-litigation training simulation. Critically challenge the user's argument using title analysis, possession analysis, civil procedure, evidentiary scrutiny, burden-of-proof evaluation, contradiction exposure, and fact-specific legal reasoning. Do not invent case citations.",
+  "generation_config": {
+    "max_new_tokens": 280,
+    "temperature": 0.45,
+    "top_p": 0.85,
+    "repetition_penalty": 1.12,
+    "do_sample": true
+  },
+  "outputs": [
+    {
+      "test_id": "T01",
+      "category": "Registered sale deed + mutation records",
+      "user_prompt": "My client purchased the property through a registered sale deed in 2014. Mutation was changed in his name and he has paid property tax for the last ten years. The defendant now disputes the vendor’s title. We argue that the registered deed, mutation entry, and tax receipts conclusively prove ownership and possession.",
+      "ideal_challenge_should_cover": [
+        "Registration proves execution/transfer attempt, not an indefeasible title if vendor’s title is defective.",
+        "Mutation and tax receipts are fiscal/administrative records, not conclusive proof of title.",
+        "Root of title, chain of title, and vendor’s transferable title must be proved.",
+        "Possession must be independently established by possession documents/witnesses/site facts."
+      ],
+      "scoring_focus": [
+        "title analysis",
+        "mutation analysis",
+        "vendor title",
+        "burden of proof",
+        "possession challenge"
+      ],
+      "model_output": "Registration proves execution of the document, but it does not automatically confer perfect title if the vendor himself lacked transferable title or had no authority to alienate the property. Mutation entries are fiscal records; they do not create or extinguish rights. Tax receipts merely indicate payment of municipal dues, not ownership. Your client must establish the root of title from which this 2014 transaction flowed. A mere chain of registration is insufficient against an allegation of defective vendorship.",
+      "timestamp": "2026-05-13T12:55:32.470355+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T02",
+      "category": "Possession claim",
+      "user_prompt": "My client has been residing in the suit property continuously for 15 years. Electricity bills, water bills, and neighbours support his occupation. Therefore, even if the defendant claims title, my client’s settled possession must be protected and the defendant cannot disturb him.",
+      "ideal_challenge_should_cover": [
+        "Possession must be lawful, settled, specific, and not merely permissive or tolerated.",
+        "Utility bills show occupation, not ownership or lawful entitlement by themselves.",
+        "The model should test whether possession was as tenant, licensee, caretaker, family member, or encroacher.",
+        "Relief should match facts: injunction alone may not settle title where title dispute is serious."
+      ],
+      "scoring_focus": [
+        "possession analysis",
+        "nature of possession",
+        "evidence scrutiny",
+        "maintainability of injunction"
+      ],
+      "model_output": "Settled possession requires more than mere residence or utility bills; it demands proof of lawful entitlement to occupy the premises. While continuous occupation is relevant, you must demonstrate that this possession was permissive, tolerated by the true owner, or transformed into adverse possession through hostile acts over the statutory period. The defendant will argue your client's possession was either illegal, permissive without permission, or merely de facto. Your evidence must establish an overt act of ownership, not just passive occupation.",
+      "timestamp": "2026-05-13T12:55:42.599306+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T03",
+      "category": "Adverse possession",
+      "user_prompt": "My client has openly occupied the agricultural land for more than 12 years, cultivated it every season, and the true owner never objected. We therefore argue that my client has perfected title by adverse possession and the owner’s present suit must fail.",
+      "ideal_challenge_should_cover": [
+        "Mere long possession is insufficient; possession must be hostile, open, continuous, exclusive, and to the knowledge of the true owner.",
+        "The claimant must identify when possession became adverse and against whom.",
+        "Revenue/cultivation entries must be tested for continuity and legal basis.",
+        "Burden lies heavily on the adverse possession claimant."
+      ],
+      "scoring_focus": [
+        "hostile possession",
+        "continuity",
+        "limitation",
+        "burden of proof",
+        "factual specificity"
+      ],
+      "model_output": "Open occupation and cultivation do not automatically perfect title under Section 68 of the Transfer of Property Act or Section 32 of the Limitation Act without proving animus possidendi – an intention to possess adversely to the true owner within the statutory period. The owner's silence is not conclusive; they may have been unaware, out of ignorance, or merely acquiescing due to some other reason. You must demonstrate that your client's possession was hostile, open, continuous, exclusive, and to the knowledge of the true owner, with clear intent to dispossess them, for the entire statutory period.",
+      "timestamp": "2026-05-13T12:55:55.352355+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T04",
+      "category": "Ancestral property sale",
+      "user_prompt": "The suit property was ancestral property. The father sold it to the defendant without taking consent from his sons. Since coparceners had a birthright in the property, we argue that the sale deed is void and the sons are entitled to recover the entire property.",
+      "ideal_challenge_should_cover": [
+        "The claimant must first prove the property is ancestral/coparcenary, not self-acquired.",
+        "Father/karta’s power to alienate for legal necessity or benefit of estate must be examined.",
+        "The sale may not automatically be void for the entire property without share analysis.",
+        "Limitation, acquiescence, and purchaser’s due diligence should be challenged."
+      ],
+      "scoring_focus": [
+        "ancestral property proof",
+        "legal necessity",
+        "shares",
+        "purchaser bona fides",
+        "limitation"
+      ],
+      "model_output": "A coparcener indeed has an undivided share in ancestral property. However, if the father executed a will prior to 2005, or if he acquired the property through legitimate means before 1963, then the property might have become self-acquired by him. If so, only the portion of the property acquired after the commencement date would be deemed ancestral. Furthermore, even if ancestral, a sale between co-parceners requires special consideration under Section 123 of the Hindu Succession Act; mere non-consent does not automatically invalidate the transaction unless specific conditions were violated.",
+      "timestamp": "2026-05-13T12:56:08.110081+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T07",
+      "category": "Forged sale deed",
+      "user_prompt": "The defendant relies on a sale deed allegedly executed by my client’s late father in 2009. My client denies the signature and says the deed is forged. Since the father never intended to sell the property, we argue that the sale deed must be ignored completely.",
+      "ideal_challenge_should_cover": [
+        "Forgery allegation requires strict pleading and proof, not bare denial.",
+        "Execution evidence, attesting witnesses, scribe, Sub-Registrar record, thumb/signature comparison, and expert opinion should be examined.",
+        "Delay in challenging the deed and conduct after 2009 must be tested.",
+        "Burden may shift depending on admitted/denied execution and surrounding facts."
+      ],
+      "scoring_focus": [
+        "document authentication",
+        "forensic evidence",
+        "pleadings",
+        "limitation",
+        "conduct"
+      ],
+      "model_output": "Your denial of the signature and claim of forgery require robust evidence beyond mere assertion. You will need expert testimony from a handwriting analyst comparing the disputed signature with admitted ones or other samples. Furthermore, if your client can demonstrate that his father had no intention to sell at the time of execution, then the document indeed lacks legal validity, but this needs specific proof rather than blanket assertion. The burden remains squarely on you to prove the forgery conclusively before any consideration can be given to ignoring it.",
+      "timestamp": "2026-05-13T12:56:18.430662+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T11",
+      "category": "Temporary injunction",
+      "user_prompt": "My client is in possession of the suit property and the defendant is threatening to interfere. We have filed a suit for permanent injunction and an interim application. Since possession is shown through photographs and tax receipts, temporary injunction should be granted.",
+      "ideal_challenge_should_cover": [
+        "Prima facie case, balance of convenience, and irreparable injury must be addressed.",
+        "Photographs/tax receipts may not prove lawful settled possession or boundaries.",
+        "If title is seriously disputed, bare injunction may be inadequate.",
+        "Suppression of material facts or delay can defeat interim relief."
+      ],
+      "scoring_focus": [
+        "temporary injunction elements",
+        "possession evidence",
+        "title dispute",
+        "procedural scrutiny"
+      ],
+      "model_output": "Possession demonstrated by photographs and tax receipts alone may establish factual possession but does not conclusively prove lawful entitlement or superior title against a party claiming ownership. An interim injunction requires demonstrating irreparable injury if relief is denied, which goes beyond mere factual possession. You must also show that your client has taken reasonable steps to protect their alleged rights and that the balance of convenience lies in granting the injunction. The court will scrutinize whether your client can ultimately succeed on the merits of the substantive dispute.",
+      "timestamp": "2026-05-13T12:56:28.435006+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T21",
+      "category": "Mortgage / encumbrance issue",
+      "user_prompt": "My client bought the property after verifying the registered sale deed and mutation entries. The bank now claims that the property was mortgaged by the seller before the sale. We argue that because my client is a bona fide purchaser in possession, the bank’s mortgage cannot affect his ownership.",
+      "ideal_challenge_should_cover": [
+        "Prior registered mortgage/charge may bind subsequent purchaser depending on notice and registration.",
+        "Due diligence should include encumbrance certificate, bank records, original title deeds, and public notice.",
+        "Vendor cannot pass unencumbered title if property was already charged.",
+        "Bona fide purchaser claim must be factually proved."
+      ],
+      "scoring_focus": [
+        "encumbrance scrutiny",
+        "due diligence",
+        "priority",
+        "vendor title",
+        "bona fide purchaser"
+      ],
+      "model_output": "A bona fide purchaser for value without notice takes possession but does not acquire title to encumbered property. While your client may be protected against subsequent encumbrances, if the bank can prove it had knowledge of or took deliberate action to ignore the prior mortgage, its claim might still succeed under Section 53A of the Transfer of Property Act. Your client must demonstrate continuous due diligence regarding all aspects of the vendor's title, including any existing mortgages. Mere registration of a sale deed does not cure defects in the underlying transaction.",
+      "timestamp": "2026-05-13T12:56:39.956842+00:00",
+      "error": null
+    }
+  ]
+}

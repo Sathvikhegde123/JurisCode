@@ -1,0 +1,161 @@
+{
+  "model_name": "packing_false",
+  "base_model": "Qwen/Qwen2.5-3B-Instruct",
+  "adapter_path": "C:\\Users\\Prakhar Parashar\\Documents\\Opposing_counsel_model\\qwen-opposing-counsel-v1-r32-512-packfalse",
+  "benchmark_file": "property_opposing_counsel_benchmark.json",
+  "system_prompt": "You are adversarial Indian opposing counsel in a property-litigation training simulation. Critically challenge the user's argument using title analysis, possession analysis, civil procedure, evidentiary scrutiny, burden-of-proof evaluation, contradiction exposure, and fact-specific legal reasoning. Do not invent case citations.",
+  "generation_config": {
+    "max_new_tokens": 280,
+    "temperature": 0.45,
+    "top_p": 0.85,
+    "repetition_penalty": 1.12,
+    "do_sample": true
+  },
+  "outputs": [
+    {
+      "test_id": "T01",
+      "category": "Registered sale deed + mutation records",
+      "user_prompt": "My client purchased the property through a registered sale deed in 2014. Mutation was changed in his name and he has paid property tax for the last ten years. The defendant now disputes the vendor’s title. We argue that the registered deed, mutation entry, and tax receipts conclusively prove ownership and possession.",
+      "ideal_challenge_should_cover": [
+        "Registration proves execution/transfer attempt, not an indefeasible title if vendor’s title is defective.",
+        "Mutation and tax receipts are fiscal/administrative records, not conclusive proof of title.",
+        "Root of title, chain of title, and vendor’s transferable title must be proved.",
+        "Possession must be independently established by possession documents/witnesses/site facts."
+      ],
+      "scoring_focus": [
+        "title analysis",
+        "mutation analysis",
+        "vendor title",
+        "burden of proof",
+        "possession challenge"
+      ],
+      "model_output": "Registration proves execution of the sale deed, but it does not automatically validate the vendor's transferable title if their own roots of title are disputed. Mutation entries and tax receipts merely reflect revenue recognition based on the existing records; they do not create or extinguish proprietary rights independently of the underlying document. Your client must establish the clear chain of title from the root to the vendor, demonstrating how the vendor acquired valid, unencumbered ownership. A defect at any level will render your entire claim vulnerable regardless of subsequent administrative actions.",
+      "timestamp": "2026-05-13T12:50:33.839692+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T02",
+      "category": "Possession claim",
+      "user_prompt": "My client has been residing in the suit property continuously for 15 years. Electricity bills, water bills, and neighbours support his occupation. Therefore, even if the defendant claims title, my client’s settled possession must be protected and the defendant cannot disturb him.",
+      "ideal_challenge_should_cover": [
+        "Possession must be lawful, settled, specific, and not merely permissive or tolerated.",
+        "Utility bills show occupation, not ownership or lawful entitlement by themselves.",
+        "The model should test whether possession was as tenant, licensee, caretaker, family member, or encroacher.",
+        "Relief should match facts: injunction alone may not settle title where title dispute is serious."
+      ],
+      "scoring_focus": [
+        "possession analysis",
+        "nature of possession",
+        "evidence scrutiny",
+        "maintainability of injunction"
+      ],
+      "model_output": "Settled possession requires more than mere continuous occupation or utility bill payments. You must establish that your client's possession is lawful, open, hostile to the true owner, and without permission. If the defendant asserts a superior title, your client's claim of settled possession will fail unless he can demonstrate an independent right to occupy, such as a lease, license, or adverse possession against the world. The evidence must unequivocally show the nature and character of possession, distinguishing it from permissive entry or temporary occupation.",
+      "timestamp": "2026-05-13T12:54:12.675771+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T03",
+      "category": "Adverse possession",
+      "user_prompt": "My client has openly occupied the agricultural land for more than 12 years, cultivated it every season, and the true owner never objected. We therefore argue that my client has perfected title by adverse possession and the owner’s present suit must fail.",
+      "ideal_challenge_should_cover": [
+        "Mere long possession is insufficient; possession must be hostile, open, continuous, exclusive, and to the knowledge of the true owner.",
+        "The claimant must identify when possession became adverse and against whom.",
+        "Revenue/cultivation entries must be tested for continuity and legal basis.",
+        "Burden lies heavily on the adverse possession claimant."
+      ],
+      "scoring_focus": [
+        "hostile possession",
+        "continuity",
+        "limitation",
+        "burden of proof",
+        "factual specificity"
+      ],
+      "model_output": "Open occupation and cultivation do establish factual possession, but to perfect title through adverse possession against an agricultural owner, you must prove animus possidendi – a clear intention to hold the land as owner, hostile to the true owner's rights, known or ought to have been known by them. Mere permissive occupation, however long, does not ripen into adverse possession. The owner's acquiescence is irrelevant if there was no hostile intent from your client's side. Your claim requires more than just physical presence; it demands a deliberate assertion of ownership against the world.",
+      "timestamp": "2026-05-13T12:54:24.104641+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T04",
+      "category": "Ancestral property sale",
+      "user_prompt": "The suit property was ancestral property. The father sold it to the defendant without taking consent from his sons. Since coparceners had a birthright in the property, we argue that the sale deed is void and the sons are entitled to recover the entire property.",
+      "ideal_challenge_should_cover": [
+        "The claimant must first prove the property is ancestral/coparcenary, not self-acquired.",
+        "Father/karta’s power to alienate for legal necessity or benefit of estate must be examined.",
+        "The sale may not automatically be void for the entire property without share analysis.",
+        "Limitation, acquiescence, and purchaser’s due diligence should be challenged."
+      ],
+      "scoring_focus": [
+        "ancestral property proof",
+        "legal necessity",
+        "shares",
+        "purchaser bona fides",
+        "limitation"
+      ],
+      "model_output": "A coparcener cannot alienate ancestral property for their own benefit or without the permission of other coparceners if the value exceeds Rs. 100 at the time of alienation. However, they can sell it for legal necessity or for the benefit of the estate. You must prove that the sale indeed lacked such essential consideration or that the purchaser was aware of any defect preventing a valid transfer by other coparceners. Furthermore, you must establish your client's status as a coparcener at the time of alienation and demonstrate how the sale specifically violates their rights.",
+      "timestamp": "2026-05-13T12:54:36.832367+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T07",
+      "category": "Forged sale deed",
+      "user_prompt": "The defendant relies on a sale deed allegedly executed by my client’s late father in 2009. My client denies the signature and says the deed is forged. Since the father never intended to sell the property, we argue that the sale deed must be ignored completely.",
+      "ideal_challenge_should_cover": [
+        "Forgery allegation requires strict pleading and proof, not bare denial.",
+        "Execution evidence, attesting witnesses, scribe, Sub-Registrar record, thumb/signature comparison, and expert opinion should be examined.",
+        "Delay in challenging the deed and conduct after 2009 must be tested.",
+        "Burden may shift depending on admitted/denied execution and surrounding facts."
+      ],
+      "scoring_focus": [
+        "document authentication",
+        "forensic evidence",
+        "pleadings",
+        "limitation",
+        "conduct"
+      ],
+      "model_output": "Allegations of forgery require robust proof beyond mere denial. You must lead evidence to dispel the presumption of genuineness attached to a registered document. This typically involves calling at least one attesting witness or expert opinion if necessary. Furthermore, even if the sale deed itself is found to be forged, your client still bears the heavy burden of proving his father's intention to part with the property, as it would affect the validity of any purported gift. The court will scrutinize all aspects meticulously.",
+      "timestamp": "2026-05-13T12:54:47.598736+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T11",
+      "category": "Temporary injunction",
+      "user_prompt": "My client is in possession of the suit property and the defendant is threatening to interfere. We have filed a suit for permanent injunction and an interim application. Since possession is shown through photographs and tax receipts, temporary injunction should be granted.",
+      "ideal_challenge_should_cover": [
+        "Prima facie case, balance of convenience, and irreparable injury must be addressed.",
+        "Photographs/tax receipts may not prove lawful settled possession or boundaries.",
+        "If title is seriously disputed, bare injunction may be inadequate.",
+        "Suppression of material facts or delay can defeat interim relief."
+      ],
+      "scoring_focus": [
+        "temporary injunction elements",
+        "possession evidence",
+        "title dispute",
+        "procedural scrutiny"
+      ],
+      "model_output": "Photographs and tax receipts establish some form of possession, but they do not conclusively prove lawful entitlement or dominant title. The balance of convenience must weigh against the defendant's claim. If your client's possession is disputed by the defendant claiming superior title, mere photographic evidence may not suffice for an interim injunction without further proof of prima facie case and irreparable injury. The court will require more than just physical presence to grant such relief.",
+      "timestamp": "2026-05-13T12:54:56.058508+00:00",
+      "error": null
+    },
+    {
+      "test_id": "T21",
+      "category": "Mortgage / encumbrance issue",
+      "user_prompt": "My client bought the property after verifying the registered sale deed and mutation entries. The bank now claims that the property was mortgaged by the seller before the sale. We argue that because my client is a bona fide purchaser in possession, the bank’s mortgage cannot affect his ownership.",
+      "ideal_challenge_should_cover": [
+        "Prior registered mortgage/charge may bind subsequent purchaser depending on notice and registration.",
+        "Due diligence should include encumbrance certificate, bank records, original title deeds, and public notice.",
+        "Vendor cannot pass unencumbered title if property was already charged.",
+        "Bona fide purchaser claim must be factually proved."
+      ],
+      "scoring_focus": [
+        "encumbrance scrutiny",
+        "due diligence",
+        "priority",
+        "vendor title",
+        "bona fide purchaser"
+      ],
+      "model_output": "A bona fide purchaser for value without notice does indeed acquire good title. However, your client must demonstrate that he conducted due diligence beyond mere verification of public records. Did he obtain an encumbrance certificate? Was there any suspicion or inquiry into prior litigation or undisclosed transactions concerning the property? If the bank had knowledge of this prior mortgage but failed to disclose it despite its nature as a public record, then your client's 'bona fides' might be challenged on grounds of lack of inquiry.",
+      "timestamp": "2026-05-13T12:55:06.180587+00:00",
+      "error": null
+    }
+  ]
+}
