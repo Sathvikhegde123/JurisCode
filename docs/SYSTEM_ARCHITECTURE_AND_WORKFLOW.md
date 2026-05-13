@@ -4,7 +4,11 @@ This document uses **Mermaid** diagrams. **Mock trial** flows and the **Citizen 
 
 ---
 
-## SYSTEM ARCHITECTURE
+## 1. Backend system architecture (FastAPI gateway and local inference)
+
+High-level view of how a **web or mobile client** talks to the **JurisCode Bharat** FastAPI service, how requests flow through routers and services, and how **local** model weights are loaded for **Qwen2.5-3B-Instruct** with three **LoRA** adapters (premise, opposing counsel, property objection / weakness detector). Adapter paths are typically configured via `.env` and may point at `models/` or exports under `all_models/`.
+
+```mermaid
 graph TD
     Client[Client - Web / Mobile] --> API[FastAPI Gateway]
 
@@ -31,12 +35,13 @@ graph TD
     BaseLLM --> Adapter1
     BaseLLM --> Adapter2
     BaseLLM --> Adapter3
+```
 
+**Explanation:** The client hits the **FastAPI** app (`backend/app/main.py`). **Routers** validate requests and delegate to **services** (`generation_service`, `session_service`). **ModelManager** loads the shared base causal LM and attaches **PEFT** LoRA adapters from disk (`ModelsDir` is representative; paths are configurable). **SessionStore** is the in-memory **session** map used by `/premise/generate` and `/practice/*` today. The three adapters are **switched per request** (premise vs opposing vs objection), not run as three separate full models in memory as three complete base weights.
 
+---
 
-
-
-## 1. Original Mock Trial Workflow
+## 2. Original Mock Trial Workflow
 
 ```mermaid
 flowchart TD
@@ -59,7 +64,7 @@ flowchart TD
 
 ---
 
-## 2. Full Platform Architecture
+## 3. Full Platform Architecture
 
 ```mermaid
 flowchart TD
@@ -98,7 +103,7 @@ flowchart TD
 
 ---
 
-## 3. Scenario Analyzer Chatbot Workflow
+## 4. Scenario Analyzer Chatbot Workflow
 
 ```mermaid
 flowchart TD
@@ -117,7 +122,7 @@ flowchart TD
 
 ---
 
-## 4. Future Scenario Analyzer With RAG
+## 5. Future Scenario Analyzer With RAG
 
 **Label: Future Enhancement (not implemented in repo).**
 
@@ -139,7 +144,7 @@ flowchart TD
 
 ---
 
-## 5. Legal Scraper Pipeline
+## 6. Legal Scraper Pipeline
 
 ```mermaid
 flowchart TD
@@ -164,7 +169,7 @@ flowchart TD
 
 ---
 
-## 6. Technology Stack (Architecture Layer)
+## 7. Technology Stack (Architecture Layer)
 
 | Layer | Technology |
 |-------|------------|
@@ -175,7 +180,7 @@ flowchart TD
 
 ---
 
-## 7. Deployment View (Logical)
+## 8. Deployment View (Logical)
 
 ```text
 Client (browser) ──HTTP──> FastAPI (localhost:8000)
