@@ -46,21 +46,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={toast.id}
             role="status"
             className={classNames(
-              'pointer-events-auto rounded-2xl border border-white/10 bg-charcoal/90 p-4 text-sm shadow-glow backdrop-blur-xl transition duration-200',
+              'pointer-events-auto rounded-2xl border border-amber-200/70 bg-white p-4 text-sm shadow-sm backdrop-blur-xl transition duration-200',
               toast.variant === 'success' && 'shadow-[0_0_0_1px_rgba(16,185,129,0.2)]',
               toast.variant === 'error' && 'shadow-[0_0_0_1px_rgba(239,68,68,0.2)]',
-              toast.variant === 'info' && 'shadow-[0_0_0_1px_rgba(59,130,246,0.2)]',
+              toast.variant === 'info' && 'shadow-[0_0_0_1px_rgba(249,115,22,0.2)]',
             )}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-semibold text-white">{toast.title}</p>
-                {toast.message ? <p className="mt-1 text-slate-300">{toast.message}</p> : null}
+                <p className="font-semibold text-slate-900">{toast.title}</p>
+                {toast.message ? <p className="mt-1 text-slate-700">{toast.message}</p> : null}
               </div>
               <button
                 type="button"
                 onClick={() => dismiss(toast.id)}
-                className="rounded-full border border-white/10 px-2 py-1 text-xs text-slate-300 transition hover:border-white/20 hover:text-white"
+                className="rounded-full border border-amber-200/70 px-2 py-1 text-xs text-slate-700 transition hover:border-amber-300/70 hover:text-slate-900"
               >
                 Close
               </button>

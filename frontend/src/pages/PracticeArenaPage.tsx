@@ -192,7 +192,7 @@ export function PracticeArenaPage() {
               <TopicBadge label={randomize ? 'Randomized' : 'Fixed'} />
             </div>
             <p className="court-text text-sm">{premise}</p>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+            <div className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm text-slate-700">
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Session</p>
               <p className="mt-2">{sessionId ? `ID ${sessionId}` : 'No active session yet.'}</p>
               <p className="mt-1">{history[0] ? `Last saved ${formatShortDate(history[0].createdAt)}` : 'Practice history will appear here.'}</p>
@@ -202,13 +202,13 @@ export function PracticeArenaPage() {
 
         <GlassCard title="Your argument" subtitle="Write in advocate style, then submit for analysis">
           <div className="space-y-4">
-            <label className="block text-sm text-slate-300">
+            <label className="block text-sm text-slate-700">
               <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Argument</span>
               <textarea
                 value={argument}
                 onChange={(event) => setArgument(event.target.value)}
                 rows={12}
-                className="min-h-[280px] w-full rounded-2xl border border-white/10 bg-[#07111f] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
+                className="min-h-[280px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
                 placeholder="Frame the issue, state the governing rule, and support your position with reasons."
               />
             </label>
@@ -225,11 +225,11 @@ export function PracticeArenaPage() {
                 type="button"
                 onClick={handleSubmitArgument}
                 disabled={submitting || !sessionId}
-                className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-electric/40 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? 'Submitting...' : 'Submit Argument'}
               </button>
-              <label className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+              <label className="flex items-center gap-2 rounded-full border border-amber-200/70 bg-white px-4 py-2 text-sm text-slate-700">
                 <input type="checkbox" checked={randomize} onChange={(event) => setRandomize(event.target.checked)} className="accent-electric" />
                 Randomize premise
               </label>
@@ -259,7 +259,7 @@ export function PracticeArenaPage() {
                     <button key={mode} type="button" onClick={() => setSelectedMode(mode)} className="rounded-full">
                       <TopicBadge label={mode} active={selectedMode === mode} />
                     </button>
-                  )) : <p className="text-sm text-slate-400">No mode data returned.</p>}
+                  )) : <p className="text-sm text-slate-600">No mode data returned.</p>}
                 </div>
               </div>
             </div>
@@ -281,22 +281,22 @@ export function PracticeArenaPage() {
           <div className="mt-5 space-y-4">
             {activeTab === 'Opposing Counsel' ? (
               <div className="space-y-3">
-                <p className="text-sm text-slate-300">{safeString(currentResponse.opposing_response, 'No opposing counsel response yet.') || 'No opposing counsel response yet.'}</p>
+                <p className="text-sm text-slate-700">{safeString(currentResponse.opposing_response, 'No opposing counsel response yet.') || 'No opposing counsel response yet.'}</p>
                 <ScoreMeter score={score} label="Response pressure" />
               </div>
             ) : null}
 
             {activeTab === 'Feedback' ? (
               <div className="space-y-3">
-                <p className="text-sm leading-7 text-slate-300">{feedback.summary}</p>
+                <p className="text-sm leading-7 text-slate-700">{feedback.summary}</p>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Objections</p>
-                    <p className="mt-2 text-sm text-slate-300">{feedback.objections.length ? feedback.objections.join('; ') : 'No objection summary returned.'}</p>
+                    <p className="mt-2 text-sm text-slate-700">{feedback.objections.length ? feedback.objections.join('; ') : 'No objection summary returned.'}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Weaknesses</p>
-                    <p className="mt-2 text-sm text-slate-300">{feedback.contradictions.length ? feedback.contradictions.join('; ') : 'No contradictions detected.'}</p>
+                    <p className="mt-2 text-sm text-slate-700">{feedback.contradictions.length ? feedback.contradictions.join('; ') : 'No contradictions detected.'}</p>
                   </div>
                 </div>
               </div>
@@ -305,10 +305,10 @@ export function PracticeArenaPage() {
             {activeTab === 'Suggestions' ? (
               <div className="space-y-3">
                 {suggestionsList.length ? suggestionsList.map((suggestion) => (
-                  <div key={suggestion} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7 text-slate-300">
+                  <div key={suggestion} className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm leading-7 text-slate-700">
                     {suggestion}
                   </div>
-                )) : <p className="text-sm text-slate-400">Submit an argument to receive targeted improvements.</p>}
+                )) : <p className="text-sm text-slate-600">Submit an argument to receive targeted improvements.</p>}
               </div>
             ) : null}
 
@@ -316,11 +316,11 @@ export function PracticeArenaPage() {
               <div className="space-y-4">
                 <ScoreMeter score={score} />
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+                  <div className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm text-slate-700">
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Evidentiary gaps</p>
                     <p className="mt-2">{feedback.evidentiary_gaps.length ? feedback.evidentiary_gaps.join('; ') : 'None flagged.'}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+                  <div className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm text-slate-700">
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Procedure</p>
                     <p className="mt-2">{feedback.procedural_issues.length ? feedback.procedural_issues.join('; ') : 'No procedural issues returned.'}</p>
                   </div>

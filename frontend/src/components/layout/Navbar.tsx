@@ -16,14 +16,14 @@ type NavbarProps = {
 
 export function Navbar({ compact = false }: NavbarProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#07111fe6] backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-amber-200/70 bg-white backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link to="/" className="group flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-2xl border border-electric/30 bg-electric/10 text-sm font-bold text-electric shadow-glow transition group-hover:border-electric/50">
+          <div className="grid h-10 w-10 place-items-center rounded-2xl border border-electric/30 bg-electric/10 text-sm font-bold text-electric shadow-sm transition group-hover:border-electric/50">
             J
           </div>
           <div>
-            <p className="text-base font-semibold text-white">JurisCode Bharat</p>
+            <p className="text-base font-semibold text-slate-900">JurisCode Bharat</p>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">AI Mock Trial Learning</p>
           </div>
         </Link>
@@ -37,7 +37,7 @@ export function Navbar({ compact = false }: NavbarProps) {
                 className={({ isActive }) =>
                   classNames(
                     'rounded-full px-4 py-2 text-sm transition',
-                    isActive ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white',
+                    isActive ? 'bg-amber-100/70 text-slate-900' : 'text-slate-700 hover:bg-amber-50/70 hover:text-slate-900',
                   )
                 }
               >

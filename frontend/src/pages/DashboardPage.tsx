@@ -35,7 +35,7 @@ export function DashboardPage() {
         <LoadingSpinner label="Loading dashboard" />
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-28 rounded-3xl border border-white/10 bg-white/5" />
+            <div key={index} className="h-28 rounded-3xl border border-amber-200/70 bg-white" />
           ))}
         </div>
       </div>
@@ -45,12 +45,12 @@ export function DashboardPage() {
   return (
     <div className="space-y-8">
       <section className="grid gap-4 xl:grid-cols-[1.6fr_0.8fr]">
-        <GlassCard className="bg-gradient-to-br from-[#0d1f38] to-[#09111d]">
+        <GlassCard className="bg-gradient-to-br from-[#fff5e2] to-[#f7ecd2]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="section-kicker">Welcome back</p>
-              <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">Build courtroom fluency through legal practice loops.</h1>
-              <p className="mt-4 text-sm leading-7 text-slate-300">
+              <h1 className="mt-3 text-3xl font-semibold text-slate-900 sm:text-4xl">Build courtroom fluency through legal practice loops.</h1>
+              <p className="mt-4 text-sm leading-7 text-slate-700">
                 Continue structured mock trial practice, analyze opposing arguments, and strengthen legal reasoning with transparent AI feedback.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -85,16 +85,16 @@ export function DashboardPage() {
               <ScoreMeter score={averageScore || 67} label="Argument score" />
               <div className="mt-5 space-y-3">
                 <div>
-                  <div className="mb-2 flex justify-between text-sm text-slate-300"><span>Reasoning structure</span><span>82%</span></div>
-                  <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-[82%] rounded-full bg-electric" /></div>
+                  <div className="mb-2 flex justify-between text-sm text-slate-700"><span>Reasoning structure</span><span>82%</span></div>
+                  <div className="h-2 rounded-full bg-amber-100/70"><div className="h-2 w-[82%] rounded-full bg-electric" /></div>
                 </div>
                 <div>
-                  <div className="mb-2 flex justify-between text-sm text-slate-300"><span>Statutory support</span><span>71%</span></div>
-                  <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-[71%] rounded-full bg-emeraldGlow" /></div>
+                  <div className="mb-2 flex justify-between text-sm text-slate-700"><span>Statutory support</span><span>71%</span></div>
+                  <div className="h-2 rounded-full bg-amber-100/70"><div className="h-2 w-[71%] rounded-full bg-emeraldGlow" /></div>
                 </div>
                 <div>
-                  <div className="mb-2 flex justify-between text-sm text-slate-300"><span>Counter-argument handling</span><span>64%</span></div>
-                  <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-[64%] rounded-full bg-mutedGold" /></div>
+                  <div className="mb-2 flex justify-between text-sm text-slate-700"><span>Counter-argument handling</span><span>64%</span></div>
+                  <div className="h-2 rounded-full bg-amber-100/70"><div className="h-2 w-[64%] rounded-full bg-mutedGold" /></div>
                 </div>
               </div>
             </GlassCard>
@@ -105,9 +105,9 @@ export function DashboardPage() {
                   <TopicBadge key={topic} label={topic} />
                 ))}
               </div>
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="mt-6 rounded-2xl border border-amber-200/70 bg-white p-4">
                 <p className="text-xs uppercase tracking-[0.3em] text-slate-500">AI feedback summary</p>
-                <p className="mt-3 text-sm leading-7 text-slate-300">
+                <p className="mt-3 text-sm leading-7 text-slate-700">
                   Your arguments are strongest when you identify the rule, state the missing fact, and directly answer the most likely objection.
                 </p>
               </div>
@@ -134,17 +134,17 @@ export function DashboardPage() {
         <div className="space-y-4">
           <GlassCard title="Session insights" subtitle="What the AI is noticing across your work">
             <div className="space-y-4">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm font-semibold text-white">Strongest skill</p>
-                <p className="mt-2 text-sm text-slate-300">Issue spotting and moving from fact to rule.</p>
+              <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
+                <p className="text-sm font-semibold text-slate-900">Strongest skill</p>
+                <p className="mt-2 text-sm text-slate-700">Issue spotting and moving from fact to rule.</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm font-semibold text-white">Needs focus</p>
-                <p className="mt-2 text-sm text-slate-300">Citing supporting authority and anticipating rebuttal.</p>
+              <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
+                <p className="text-sm font-semibold text-slate-900">Needs focus</p>
+                <p className="mt-2 text-sm text-slate-700">Citing supporting authority and anticipating rebuttal.</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm font-semibold text-white">Next milestone</p>
-                <p className="mt-2 text-sm text-slate-300">Reach 80% average on three consecutive mock trial turns.</p>
+              <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
+                <p className="text-sm font-semibold text-slate-900">Next milestone</p>
+                <p className="mt-2 text-sm text-slate-700">Reach 80% average on three consecutive mock trial turns.</p>
               </div>
             </div>
           </GlassCard>

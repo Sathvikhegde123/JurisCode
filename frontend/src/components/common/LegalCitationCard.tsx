@@ -17,10 +17,10 @@ export function LegalCitationCard({ title, citations, tone = 'electric' }: Legal
           <p className={`text-xs uppercase tracking-[0.35em] ${accent}`}>{title}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {citations.length ? citations.map((citation) => (
-              <span key={citation} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-slate-200">
+              <span key={citation} className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-sm text-slate-800">
                 {citation}
               </span>
-            )) : <span className="text-sm text-slate-400">No citations returned. Use the response to anchor statutory references.</span>}
+            )) : <span className="text-sm text-slate-600">No citations returned. Use the response to anchor statutory references.</span>}
           </div>
         </div>
       </div>

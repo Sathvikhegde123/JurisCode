@@ -15,7 +15,7 @@ export function TranscriptBubble({ speaker, content, tone = 'slate', compact = f
         ? 'border-mutedGold/30 bg-mutedGold/10 text-mutedGold'
         : tone === 'electric'
           ? 'border-electric/30 bg-electric/10 text-electric'
-          : 'border-white/10 bg-white/5 text-slate-200';
+          : 'border-amber-200/70 bg-white text-slate-800';
 
   return (
     <div className={classNames('rounded-2xl border p-4', styles)}>
@@ -23,7 +23,7 @@ export function TranscriptBubble({ speaker, content, tone = 'slate', compact = f
         <span className="text-xs uppercase tracking-[0.3em] opacity-80">{speaker}</span>
         <span className="h-2 w-2 rounded-full bg-current opacity-80" aria-hidden="true" />
       </div>
-      <p className={classNames('mt-3 leading-7 text-white', compact ? 'text-sm' : 'text-[15px]')}>
+      <p className={classNames('mt-3 leading-7 text-slate-900', compact ? 'text-sm' : 'text-[15px]')}>
         {content}
       </p>
     </div>

@@ -46,12 +46,12 @@ export function LearningHubPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-2">
             <TopicBadge label={beginnerMode ? 'Beginner mode' : 'Advanced mode'} active />
-            <p className="text-sm leading-7 text-slate-300">{learningTone}</p>
+            <p className="text-sm leading-7 text-slate-700">{learningTone}</p>
           </div>
           <button
             type="button"
             onClick={() => setBeginnerMode((value) => !value)}
-            className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-electric/40 hover:bg-white/10"
+            className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70"
           >
             Toggle mode
           </button>
@@ -64,8 +64,8 @@ export function LearningHubPage() {
             <GlassCard className="h-full cursor-pointer transition hover:-translate-y-0.5 hover:border-electric/30">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-lg font-semibold text-white">{module.title}</p>
-                  <p className="mt-2 text-sm leading-7 text-slate-300">{module.description}</p>
+                  <p className="text-lg font-semibold text-slate-900">{module.title}</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{module.description}</p>
                 </div>
                 <ProgressRing value={module.progress} label="Progress" size={108} />
               </div>
@@ -77,17 +77,17 @@ export function LearningHubPage() {
       <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <GlassCard title="Flashcards" subtitle="Tap through key courtroom concepts">
           <div className="space-y-4">
-            <div className="min-h-[220px] rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:border-electric/20">
+            <div className="min-h-[220px] rounded-3xl border border-amber-200/70 bg-white p-6 transition hover:border-electric/20">
               <p className="section-kicker">Card {selectedCard + 1} of {flashcards.length}</p>
               <div className="mt-4 space-y-4">
                 <TranscriptBubble speaker="Front" tone="electric" content={currentCard.front} compact />
                 <TranscriptBubble speaker="Back" tone="emerald" content={currentCard.back} compact />
-                {currentCard.hint ? <p className="text-sm text-slate-400">Hint: {currentCard.hint}</p> : null}
+                {currentCard.hint ? <p className="text-sm text-slate-600">Hint: {currentCard.hint}</p> : null}
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
               <button type="button" onClick={() => setSelectedCard((value) => (value + 1) % flashcards.length)} className="rounded-full bg-electric px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">Next card</button>
-              <button type="button" onClick={() => setSelectedCard(0)} className="rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-electric/40">Reset</button>
+              <button type="button" onClick={() => setSelectedCard(0)} className="rounded-full border border-amber-200/80 bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:border-electric/40">Reset</button>
             </div>
           </div>
         </GlassCard>
@@ -95,13 +95,13 @@ export function LearningHubPage() {
         <GlassCard title="Mini quiz" subtitle="Select the strongest learning behavior">
           <div className="space-y-4">
             {quizOptions.map((option) => (
-              <label key={option} className={classNames('flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition', quizAnswer === option ? 'border-electric/30 bg-electric/10' : 'border-white/10 bg-white/5 hover:border-white/20')}>
+              <label key={option} className={classNames('flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition', quizAnswer === option ? 'border-electric/30 bg-electric/10' : 'border-amber-200/70 bg-white hover:border-amber-300/70')}>
                 <input type="radio" name="legal-quiz" value={option} checked={quizAnswer === option} onChange={(event) => setQuizAnswer(event.target.value)} className="mt-1 accent-electric" />
-                <span className="text-sm leading-7 text-slate-300">{option}</span>
+                <span className="text-sm leading-7 text-slate-700">{option}</span>
               </label>
             ))}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-              <p className="font-semibold text-white">Recommended answer</p>
+            <div className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm text-slate-700">
+              <p className="font-semibold text-slate-900">Recommended answer</p>
               <p className="mt-2 leading-7">State the rule, then connect facts.</p>
             </div>
           </div>
@@ -118,7 +118,7 @@ export function LearningHubPage() {
 
       <Modal open={Boolean(selectedModule)} title={selectedModule ?? 'Module details'} onClose={() => setSelectedModule(null)}>
         <div className="space-y-4">
-          <p className="text-sm leading-7 text-slate-300">
+          <p className="text-sm leading-7 text-slate-700">
             {selectedModule === 'Courtroom objections'
               ? 'Learn why objections matter, how to name them, and how to respond without breaking the flow of argument.'
               : selectedModule === 'Burden of proof'
@@ -132,13 +132,13 @@ export function LearningHubPage() {
                       : 'Open a module to review the learning objective.'}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Why it matters</p>
-              <p className="mt-2 text-sm leading-7 text-slate-300">These modules help students move from passive reading to active legal reasoning.</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">These modules help students move from passive reading to active legal reasoning.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Next practice step</p>
-              <p className="mt-2 text-sm leading-7 text-slate-300">Use Practice Arena to test the concept in a courtroom simulation.</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">Use Practice Arena to test the concept in a courtroom simulation.</p>
             </div>
           </div>
         </div>

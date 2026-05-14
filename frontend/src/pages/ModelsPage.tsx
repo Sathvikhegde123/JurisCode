@@ -50,9 +50,9 @@ export function ModelsPage() {
       <GlassCard title="Futuristic monitoring dashboard" subtitle="Inspect the live backend and model runtime state">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Object.entries({ ...health, ...status }).map(([key, value]) => (
-            <div key={key} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div key={key} className="rounded-2xl border border-amber-200/70 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{key.split('_').join(' ')}</p>
-              <p className="mt-2 break-words text-sm text-white">{typeof value === 'string' ? value : JSON.stringify(value)}</p>
+              <p className="mt-2 break-words text-sm text-slate-900">{typeof value === 'string' ? value : JSON.stringify(value)}</p>
             </div>
           ))}
         </div>

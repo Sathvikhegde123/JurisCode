@@ -19,16 +19,16 @@ export function SessionCard({ session }: SessionCardProps) {
                 <TopicBadge label={session.topic} active />
                 <span className="text-xs uppercase tracking-[0.25em] text-slate-500">{session.mode}</span>
               </div>
-              <h3 className="mt-3 text-lg font-semibold text-white">{session.premise}</h3>
-              <p className="mt-2 text-sm text-slate-400">{formatShortDate(session.createdAt)}</p>
+              <h3 className="mt-3 text-lg font-semibold text-slate-900">{session.premise}</h3>
+              <p className="mt-2 text-sm text-slate-600">{formatShortDate(session.createdAt)}</p>
             </div>
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-white">{session.latestScore ? formatPercent(session.latestScore) : 'New'}</span>
+            <span className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-sm text-slate-900">{session.latestScore ? formatPercent(session.latestScore) : 'New'}</span>
           </div>
         </summary>
-        <div className="mt-5 grid gap-4 border-t border-white/10 pt-4 sm:grid-cols-[1.4fr_1fr]">
+        <div className="mt-5 grid gap-4 border-t border-amber-200/70 pt-4 sm:grid-cols-[1.4fr_1fr]">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Latest feedback</p>
-            <p className="mt-2 text-sm leading-6 text-slate-300">{session.latestFeedback ?? 'No feedback captured yet.'}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">{session.latestFeedback ?? 'No feedback captured yet.'}</p>
           </div>
           <div>
             <ScoreMeter score={session.latestScore ?? 0} label="Session score" />

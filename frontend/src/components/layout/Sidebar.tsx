@@ -12,13 +12,13 @@ const navItems = [
 
 export function Sidebar() {
   return (
-    <aside className="hidden min-h-[calc(100vh-0px)] w-72 flex-col border-r border-white/10 bg-[#08111fe6] px-4 py-6 backdrop-blur-xl xl:flex">
+    <aside className="hidden min-h-[calc(100vh-0px)] w-72 flex-col border-r border-amber-200/70 bg-[#fff7ea]/90 px-4 py-6 backdrop-blur-xl xl:flex">
       <div className="flex items-center gap-3 px-2">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl border border-electric/30 bg-electric/10 text-lg font-bold text-electric shadow-glow">
+        <div className="grid h-11 w-11 place-items-center rounded-2xl border border-electric/30 bg-electric/10 text-lg font-bold text-electric shadow-sm">
           J
         </div>
         <div>
-          <p className="text-lg font-semibold text-white">JurisCode Bharat</p>
+          <p className="text-lg font-semibold text-slate-900">JurisCode Bharat</p>
           <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Courtroom simulator</p>
         </div>
       </div>
@@ -32,8 +32,8 @@ export function Sidebar() {
               classNames(
                 'rounded-2xl border px-4 py-3 text-sm transition',
                 isActive
-                  ? 'border-electric/30 bg-electric/10 text-white shadow-[0_0_0_1px_rgba(59,130,246,0.12)]'
-                  : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:bg-white/8 hover:text-white',
+                  ? 'border-electric/30 bg-electric/10 text-slate-900 shadow-[0_0_0_1px_rgba(249,115,22,0.18)]'
+                  : 'border-amber-200/70 bg-white text-slate-700 hover:border-amber-300/70 hover:bg-amber-50/80 hover:text-slate-900',
               )
             }
           >
@@ -42,8 +42,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-        <p className="font-semibold text-white">Educational disclaimer</p>
+      <div className="mt-auto rounded-3xl border border-amber-200/70 bg-white p-4 text-sm text-slate-700">
+        <p className="font-semibold text-slate-900">Educational disclaimer</p>
         <p className="mt-2 leading-6">For educational and mock-trial practice purposes only. Not legal advice.</p>
       </div>
     </aside>

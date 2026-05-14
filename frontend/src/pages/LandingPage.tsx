@@ -33,9 +33,9 @@ const workflow = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_26%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_24%),linear-gradient(180deg,_#07111f_0%,_#050a12_100%)] text-white">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(249,115,22,0.18),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(34,197,94,0.14),_transparent_28%),linear-gradient(180deg,_#fffaf3_0%,_#f7f1e3_100%)] text-slate-900">
       <Navbar />
-      <main>
+      <main className="page-fade">
         <section className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-20">
           <div className="space-y-7">
             <div className="flex flex-wrap items-center gap-3">
@@ -45,10 +45,10 @@ export function LandingPage() {
             </div>
             <div className="space-y-5">
               <p className="section-kicker">AI-powered legal education platform</p>
-              <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 Learn Legal Reasoning Through AI-Powered Mock Trials
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-300">
+              <p className="max-w-2xl text-lg leading-8 text-slate-700">
                 Practice objections, challenge arguments, explore legal logic, and learn courtroom reasoning interactively.
               </p>
             </div>
@@ -56,34 +56,34 @@ export function LandingPage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/practice"
-                className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-6 py-3 font-semibold text-white shadow-glow transition hover:scale-[1.02] hover:brightness-110"
+                className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-6 py-3 font-semibold text-white shadow-sm transition hover:scale-[1.02] hover:brightness-110"
               >
                 Start Practice
               </Link>
               <Link
                 to="/learn"
-                className="rounded-full border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:border-electric/40 hover:bg-white/10"
+                className="rounded-full border border-amber-200/80 bg-white px-6 py-3 font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70"
               >
                 Explore Learning Hub
               </Link>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 stagger-children">
               {features.map((feature) => (
                 <GlassCard key={feature.title} className="h-full">
-                  <h2 className="text-lg font-semibold text-white">{feature.title}</h2>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">{feature.description}</p>
+                  <h2 className="text-lg font-semibold text-slate-900">{feature.title}</h2>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">{feature.description}</p>
                 </GlassCard>
               ))}
             </div>
           </div>
 
           <div className="space-y-5">
-            <GlassCard className="border-electric/20 bg-[#0a1525]/80">
+            <GlassCard className="border-electric/20 bg-[#fff3e3]">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="section-kicker">Mock trial preview</p>
-                  <h2 className="mt-2 text-xl font-semibold text-white">Courtroom transcript</h2>
+                  <h2 className="mt-2 text-xl font-semibold text-slate-900">Courtroom transcript</h2>
                 </div>
                 <span className="rounded-full border border-emeraldGlow/20 bg-emeraldGlow/10 px-3 py-1 text-xs text-emeraldGlow">
                   Live practice flow
@@ -100,11 +100,11 @@ export function LandingPage() {
               <p className="section-kicker">Learning workflow</p>
               <div className="mt-4 space-y-3">
                 {workflow.map((step, index) => (
-                  <div key={step} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div key={step} className="flex items-start gap-3 rounded-2xl border border-amber-200/70 bg-white p-4">
                     <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-electric/15 text-sm font-semibold text-electric">
                       {index + 1}
                     </div>
-                    <p className="text-sm leading-6 text-slate-300">{step}</p>
+                    <p className="text-sm leading-6 text-slate-700">{step}</p>
                   </div>
                 ))}
               </div>
@@ -112,8 +112,8 @@ export function LandingPage() {
 
             <GlassCard>
               <p className="section-kicker">SDG 4 alignment</p>
-              <h2 className="mt-3 text-xl font-semibold text-white">Accessible, explainable, practice-driven education</h2>
-              <p className="mt-3 text-sm leading-7 text-slate-300">
+              <h2 className="mt-3 text-xl font-semibold text-slate-900">Accessible, explainable, practice-driven education</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-700">
                 The platform supports structured legal reasoning, court literacy, and repeatable practice so students can build confidence without relying on legal advice.
               </p>
             </GlassCard>

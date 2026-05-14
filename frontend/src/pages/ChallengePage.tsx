@@ -43,23 +43,23 @@ export function ChallengePage() {
     <div className="space-y-6">
       <GlassCard title="Challenge my argument" subtitle="Pressure-test a premise and your courtroom position">
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-          <label className="block text-sm text-slate-300">
+          <label className="block text-sm text-slate-700">
             <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Premise</span>
             <textarea
               value={premise}
               onChange={(event) => setPremise(event.target.value)}
               rows={10}
-              className="min-h-[260px] w-full rounded-2xl border border-white/10 bg-[#07111f] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
+              className="min-h-[260px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
               placeholder="Enter the factual scenario or legal issue to challenge."
             />
           </label>
-          <label className="block text-sm text-slate-300">
+          <label className="block text-sm text-slate-700">
             <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Argument</span>
             <textarea
               value={argument}
               onChange={(event) => setArgument(event.target.value)}
               rows={10}
-              className="min-h-[260px] w-full rounded-2xl border border-white/10 bg-[#07111f] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
+              className="min-h-[260px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
               placeholder="Write the argument that opposing counsel should attack."
             />
           </label>
@@ -70,7 +70,7 @@ export function ChallengePage() {
             value={sessionId}
             onChange={(event) => setSessionId(event.target.value)}
             placeholder="Optional session id"
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
+            className="rounded-2xl border border-amber-200/70 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none"
           />
           <button
             type="button"
@@ -94,22 +94,22 @@ export function ChallengePage() {
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Generated at {formatShortDate(new Date())}</p>
             </div>
           ) : (
-            <p className="text-sm text-slate-400">Enter a premise and an argument to generate a challenge.</p>
+            <p className="text-sm text-slate-600">Enter a premise and an argument to generate a challenge.</p>
           )}
         </GlassCard>
 
         <GlassCard title="AI analysis" subtitle="Switch through the response, citations, and questions">
           <TabSwitcher tabs={tabs} active={activeTab} onChange={setActiveTab} />
           <div className="mt-5 space-y-4">
-            {activeTab === 'Response' ? <p className="text-sm leading-7 text-slate-300">{response ? safeString(response.opposing_response, 'No response returned.') : 'No response yet.'}</p> : null}
+            {activeTab === 'Response' ? <p className="text-sm leading-7 text-slate-700">{response ? safeString(response.opposing_response, 'No response returned.') : 'No response yet.'}</p> : null}
             {activeTab === 'Citations' ? <LegalCitationCard title="Statutory citation section" citations={response?.statutory_citations ?? []} tone="gold" /> : null}
             {activeTab === 'Questions' ? (
               <div className="space-y-3">
                 {(response?.socratic_questions ?? []).length ? (response?.socratic_questions ?? []).map((question) => (
-                  <div key={question} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7 text-slate-300">
+                  <div key={question} className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm leading-7 text-slate-700">
                     {question}
                   </div>
-                )) : <p className="text-sm text-slate-400">Socratic questions will appear after the backend responds.</p>}
+                )) : <p className="text-sm text-slate-600">Socratic questions will appear after the backend responds.</p>}
               </div>
             ) : null}
           </div>

@@ -42,7 +42,7 @@ const workflowSteps: WorkflowStep[] = [
 const statusToneClasses: Record<SessionStatus, string> = {
   active: 'border-electric/30 bg-electric/10 text-electric',
   'awaiting-opening': 'border-mutedGold/30 bg-mutedGold/10 text-mutedGold',
-  'opposing-response': 'border-rose-400/30 bg-rose-500/10 text-rose-200',
+  'opposing-response': 'border-amber-300/70 bg-amber-100/70 text-amber-800',
   rebuttal: 'border-emeraldGlow/30 bg-emeraldGlow/10 text-emeraldGlow',
   'judgment-complete': 'border-mutedGold/40 bg-mutedGold/15 text-mutedGold',
 };
@@ -80,7 +80,7 @@ function formatPremise(payload: unknown) {
 function StatusBadge({ label, tone }: { label: string; tone: SessionStatus | 'neutral' }) {
   const className =
     tone === 'neutral'
-      ? 'border-white/10 bg-white/5 text-slate-300'
+      ? 'border-amber-200/70 bg-white text-slate-700'
       : statusToneClasses[tone];
   return (
     <span className={classNames('inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]', className)}>
@@ -91,17 +91,17 @@ function StatusBadge({ label, tone }: { label: string; tone: SessionStatus | 'ne
 
 function MetricTile({ label, value, helper }: { label: string; value: string; helper?: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
       <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">{label}</p>
-      <p className="mt-2 break-words text-sm font-semibold text-white">{value}</p>
-      {helper ? <p className="mt-1 text-xs leading-6 text-slate-400">{helper}</p> : null}
+      <p className="mt-2 break-words text-sm font-semibold text-slate-900">{value}</p>
+      {helper ? <p className="mt-1 text-xs leading-6 text-slate-600">{helper}</p> : null}
     </div>
   );
 }
 
 function StageStepper({ activeIndex }: { activeIndex: number }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-glow backdrop-blur-xl">
+    <div className="rounded-3xl border border-amber-200/70 bg-white p-4 shadow-sm backdrop-blur-xl">
       <div className="grid gap-3 grid-cols-3 xl:grid-cols-6">
         {workflowSteps.map((step, index) => {
           const completed = index < activeIndex;
@@ -115,7 +115,7 @@ function StageStepper({ activeIndex }: { activeIndex: number }) {
                   ? 'border-emeraldGlow/30 bg-emeraldGlow/10'
                   : current
                     ? 'border-electric/40 bg-electric/15'
-                    : 'border-white/10 bg-[#07111f]'
+                    : 'border-amber-200/70 bg-white'
               )}
             >
               <div className="flex items-center justify-between gap-3">
@@ -124,8 +124,8 @@ function StageStepper({ activeIndex }: { activeIndex: number }) {
                 </span>
                 <span className={classNames('h-2.5 w-2.5 rounded-full', completed ? 'bg-emeraldGlow' : current ? 'bg-electric' : 'bg-slate-600')} aria-hidden="true" />
               </div>
-              <p className="mt-3 text-sm font-semibold text-white">{step.label}</p>
-              <p className="mt-1 text-xs leading-6 text-slate-400">{step.description}</p>
+              <p className="mt-3 text-sm font-semibold text-slate-900">{step.label}</p>
+              <p className="mt-1 text-xs leading-6 text-slate-600">{step.description}</p>
             </div>
           );
         })}
@@ -138,19 +138,19 @@ function CircularScoreMeter({ score, label }: { score: number; label: string }) 
   const value = clamp(score, 0, 100);
   const degrees = value * 3.6;
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#08111f] p-5">
+    <div className="rounded-3xl border border-amber-200/70 bg-white p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{label}</p>
-        <p className="text-sm font-semibold text-white">{formatPercent(value)}</p>
+        <p className="text-sm font-semibold text-slate-900">{formatPercent(value)}</p>
       </div>
       <div className="flex items-center justify-center">
         <div
           className="relative flex h-32 w-32 items-center justify-center rounded-full"
-          style={{ background: `conic-gradient(#f5c45b 0deg ${degrees}deg, rgba(255,255,255,0.08) ${degrees}deg 360deg)` }}
+          style={{ background: `conic-gradient(#f5c45b 0deg ${degrees}deg, rgba(148,163,184,0.25) ${degrees}deg 360deg)` }}
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-[#05101b] text-center">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-amber-200/70 bg-white text-center">
             <div>
-              <p className="text-3xl font-semibold text-white">{Math.round(value)}</p>
+              <p className="text-3xl font-semibold text-slate-900">{Math.round(value)}</p>
               <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">out of 100</p>
             </div>
           </div>
@@ -162,8 +162,8 @@ function CircularScoreMeter({ score, label }: { score: number; label: string }) 
 
 function EmptyPanel({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-5 text-sm text-slate-400">
-      <p className="text-sm font-semibold text-white">{title}</p>
+    <div className="rounded-3xl border border-dashed border-amber-200/70 bg-white p-5 text-sm text-slate-600">
+      <p className="text-sm font-semibold text-slate-900">{title}</p>
       <p className="mt-2 leading-7">{description}</p>
     </div>
   );
@@ -171,7 +171,7 @@ function EmptyPanel({ title, description }: { title: string; description: string
 
 function JudgeCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#08111f] p-5 shadow-glow">
+    <div className="rounded-3xl border border-amber-200/70 bg-white p-5 shadow-sm">
       <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{title}</p>
       <div className="mt-4">{children}</div>
     </div>
@@ -185,9 +185,9 @@ function ScoreRibbon({ score }: { score: number }) {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-mutedGold">Final Score</p>
-          <p className="mt-2 text-4xl font-semibold text-white">{Math.round(value)}</p>
+          <p className="mt-2 text-4xl font-semibold text-slate-900">{Math.round(value)}</p>
         </div>
-        <div className="text-sm text-slate-300">
+        <div className="text-sm text-slate-700">
           <p>Score out of 100</p>
           <p className="mt-1 text-xs uppercase tracking-[0.28em] text-slate-500">Session judgment complete</p>
         </div>
@@ -475,19 +475,19 @@ export function PracticeArenaPage() {
     <div className="flex h-full min-h-screen flex-col gap-0">
 
       {/* ── Top header bar — full width ── */}
-      <header className="border-b border-white/10 bg-[#040d19]/80 px-6 py-5 backdrop-blur-xl">
+      <header className="border-b border-amber-200/70 bg-white px-6 py-5 backdrop-blur-xl">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1">
             <p className="section-kicker">Practice Arena</p>
-            <h1 className="text-2xl font-semibold text-white lg:text-3xl">
+            <h1 className="text-2xl font-semibold text-slate-900 lg:text-3xl">
               Courtroom workflow — session setup to judicial evaluation
             </h1>
-            <p className="max-w-3xl text-sm leading-7 text-slate-400">
+            <p className="max-w-3xl text-sm leading-7 text-slate-600">
               Follow the staged training loop: create a session, lock the premise, draft the opening, absorb the opposing response, prepare the rebuttal, and review the final judgment.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-2 rounded-3xl border border-white/10 bg-white/5 px-4 py-3">
+            <div className="flex flex-col gap-2 rounded-3xl border border-amber-200/70 bg-white px-4 py-3">
               <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">Session setup</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <label className="flex flex-col text-[10px] uppercase tracking-[0.28em] text-slate-500">
@@ -496,7 +496,7 @@ export function PracticeArenaPage() {
                     value={selectedTopic}
                     onChange={(event) => setSelectedTopic(event.target.value)}
                     disabled={loadingMeta || !topics.length}
-                    className="min-w-[200px] rounded-2xl border border-white/10 bg-[#06111d] px-3 py-2 text-xs text-slate-200 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                    className="min-w-[200px] rounded-2xl border border-amber-200/70 bg-white px-3 py-2 text-xs text-slate-900 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="" disabled>
                       {loadingMeta ? 'Loading topics...' : topics.length ? 'Select topic' : 'No topics available'}
@@ -515,7 +515,7 @@ export function PracticeArenaPage() {
                     value={selectedMode}
                     onChange={(event) => setSelectedMode(event.target.value)}
                     disabled={loadingMeta || !modes.length}
-                    className="min-w-[180px] rounded-2xl border border-white/10 bg-[#06111d] px-3 py-2 text-xs text-slate-200 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                    className="min-w-[180px] rounded-2xl border border-amber-200/70 bg-white px-3 py-2 text-xs text-slate-900 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="" disabled>
                       {loadingMeta ? 'Loading modes...' : modes.length ? 'Select mode' : 'No modes available'}
@@ -541,11 +541,11 @@ export function PracticeArenaPage() {
               type="button"
               onClick={handleGeneratePremise}
               disabled={!sessionId || premiseLoading || !selectedTopic || !selectedMode}
-              className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-electric/40 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {generatingPremise ? 'Generating Premise...' : 'Generate Premise'}
             </button>
-            <label className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300 cursor-pointer">
+            <label className="flex items-center gap-2 rounded-full border border-amber-200/70 bg-white px-4 py-3 text-sm text-slate-700 cursor-pointer">
               <input type="checkbox" checked={randomize} onChange={(e) => setRandomize(e.target.checked)} className="accent-electric" />
               Randomize
             </label>
@@ -554,14 +554,14 @@ export function PracticeArenaPage() {
       </header>
 
       {/* ── Session metrics + stepper — full width ── */}
-      <div className="border-b border-white/10 bg-[#05101a]/60 px-6 py-4 backdrop-blur-xl">
+      <div className="border-b border-amber-200/70 bg-[#fff3e6]/70 px-6 py-4 backdrop-blur-xl">
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricTile label="Session ID" value={sessionId || 'Pending'} helper="Active session." />
           <MetricTile label="Topic" value={selectedTopic || 'Pending'} helper="Practice topic." />
           <MetricTile label="Mode" value={selectedMode || 'Pending'} helper="Generation mode." />
           <MetricTile label="Workflow Stage" value={workflowStage} helper="Backend workflow state." />
           <MetricTile label="Current Round" value={formatNumber(currentRound)} helper="Argument loop count." />
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
             <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">Session Status</p>
             <div className="mt-3">
               <StatusBadge label={sessionStatus} tone={sessionStatus} />
@@ -575,7 +575,7 @@ export function PracticeArenaPage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* LEFT PANEL — wider, scrollable, courtroom interaction */}
-        <div className="flex-[1.6] overflow-y-auto border-r border-white/10 px-6 py-6">
+        <div className="flex-[1.6] overflow-y-auto border-r border-amber-200/70 px-6 py-6">
           <div className="space-y-6">
 
             {/* Premise Panel */}
@@ -586,10 +586,10 @@ export function PracticeArenaPage() {
                   <MetricTile label="Workflow Stage" value={premiseStage} />
                 </div>
 
-                <div className="rounded-3xl border border-white/10 bg-[#06111d] p-5">
+                <div className="rounded-3xl border border-amber-200/70 bg-[#fff7ea] p-5">
                   <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Premise</p>
-                  <div className="mt-3 max-h-64 overflow-y-auto rounded-2xl border border-white/10 bg-[#050d18] p-4">
-                    <pre className="whitespace-pre-wrap text-xs leading-6 text-slate-200">
+                  <div className="mt-3 max-h-64 overflow-y-auto rounded-2xl border border-amber-200/70 bg-white p-4">
+                    <pre className="whitespace-pre-wrap text-xs leading-6 text-slate-800">
                       {premiseText || 'Premise will appear after generation.'}
                     </pre>
                   </div>
@@ -600,8 +600,8 @@ export function PracticeArenaPage() {
                   <div className="max-h-[320px] space-y-3 overflow-y-auto pr-1">
                     {lockedFacts.length
                       ? lockedFacts.map((fact, index) => (
-                        <div key={`${fact}-${index}`} className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-4 text-sm leading-7 text-amber-50 shadow-inner">
-                          <p className="text-[11px] uppercase tracking-[0.28em] text-amber-200">Locked Fact {index + 1}</p>
+                        <div key={`${fact}-${index}`} className="rounded-2xl border border-amber-300/60 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900 shadow-inner">
+                          <p className="text-[11px] uppercase tracking-[0.28em] text-amber-700">Locked Fact {index + 1}</p>
                           <p className="mt-2 whitespace-pre-wrap">{fact}</p>
                         </div>
                       ))
@@ -618,12 +618,12 @@ export function PracticeArenaPage() {
             {/* Student Advocate — Opening */}
             <GlassCard className="min-h-[420px]" title="Student Advocate" subtitle="Large legal drafting area for the opening argument">
               <div className="space-y-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-amber-200/70 bg-white p-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border border-electric/30 bg-electric/10 text-lg font-semibold text-electric">
                     A
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">Advocate Desk</p>
+                    <p className="text-sm font-semibold text-slate-900">Advocate Desk</p>
                     <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Courtroom transcript style</p>
                   </div>
                 </div>
@@ -635,13 +635,13 @@ export function PracticeArenaPage() {
                     onChange={(e) => setOpeningArgument(e.target.value)}
                     rows={12}
                     disabled={!openingReady}
-                    className="min-h-[300px] w-full rounded-3xl border border-white/10 bg-[#06111d] px-4 py-4 text-sm leading-7 text-white placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                    className="min-h-[300px] w-full rounded-3xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                     placeholder={openingReady ? 'Frame the issue, state the rule, and anchor your facts.' : 'Generate the premise to unlock the opening editor.'}
                   />
                 </label>
 
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-600">
                     Legal writing helper placeholder: open with the issue, keep the rule tight, and connect every paragraph to the locked facts.
                   </p>
                   <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(openingArgument.length)} characters</p>
@@ -662,15 +662,15 @@ export function PracticeArenaPage() {
                 {openingResponse ? (
                   <div className="rounded-3xl border border-electric/30 bg-electric/10 p-5">
                     <p className="text-xs uppercase tracking-[0.28em] text-electric">Opening Record</p>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white">{safeString(openingResponse.content, openingArgument)}</p>
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-900">{safeString(openingResponse.content, openingArgument)}</p>
+                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
                       <span>Round {Math.max(1, safeNumber(openingResponse.round_number ?? openingResponse.current_round, 1))}</span>
                       <span>•</span>
                       <span>{safeString(openingResponse.argument_type, 'opening')}</span>
                       {openingFlags.length ? (
                         <>
                           <span>•</span>
-                          <span className="text-amber-300">Hallucination flags: {openingFlags.join(', ')}</span>
+                          <span className="text-amber-700">Hallucination flags: {openingFlags.join(', ')}</span>
                         </>
                       ) : null}
                     </div>
@@ -682,31 +682,31 @@ export function PracticeArenaPage() {
             {/* Opposing Counsel Response */}
             <GlassCard className="min-h-[360px]" title="Opposing Counsel Response" subtitle="Auto-generated challenge after the opening argument is submitted">
               {opposingResponse ? (
-                <div className="space-y-4 rounded-3xl border border-rose-400/25 bg-rose-500/10 p-5">
+                <div className="space-y-4 rounded-3xl border border-amber-300/60 bg-amber-100/70 p-5">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-rose-200/30 bg-rose-200/10 text-sm font-semibold text-rose-100">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-amber-300/70 bg-amber-100/70 text-sm font-semibold text-amber-800">
                         AI
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">AI Opposing Counsel</p>
-                        <p className="text-xs uppercase tracking-[0.28em] text-rose-200">Legal challenge transcript</p>
+                        <p className="text-sm font-semibold text-slate-900">AI Opposing Counsel</p>
+                        <p className="text-xs uppercase tracking-[0.28em] text-amber-700">Legal challenge transcript</p>
                       </div>
                     </div>
-                    <div className="text-right text-xs uppercase tracking-[0.22em] text-rose-200">
+                    <div className="text-right text-xs uppercase tracking-[0.22em] text-amber-700">
                       <p>{opposingTimestamp ? formatDateTime(opposingTimestamp) : 'Pending'}</p>
-                      <p className="mt-1 text-[10px] tracking-[0.28em] text-rose-300/80">Typing animation enabled</p>
+                      <p className="mt-1 text-[10px] tracking-[0.28em] text-amber-600/80">Typing animation enabled</p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-[#06111d] p-4">
+                  <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
                     <p className="mb-3 text-xs uppercase tracking-[0.28em] text-slate-500">Courtroom Dialogue</p>
-                    <p className="whitespace-pre-wrap text-sm leading-8 text-slate-100">
+                    <p className="whitespace-pre-wrap text-sm leading-8 text-slate-800">
                       {typedOpposing || safeString(opposingResponse.content, 'The opposing counsel response will appear here.')}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
                     <StatusBadge label={sessionStatus} tone={sessionStatus} />
                     <span>{safeString(opposingResponse.workflow_stage, workflowStage)}</span>
                   </div>
@@ -715,15 +715,15 @@ export function PracticeArenaPage() {
                     type="button"
                     onClick={() => void handleGenerateOpposing('manual').catch(() => undefined)}
                     disabled={generatingOpposing}
-                    className="rounded-full border border-rose-200/30 bg-rose-200/10 px-4 py-2 text-sm font-semibold text-rose-50 transition hover:bg-rose-200/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-full border border-amber-300/70 bg-amber-100/70 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100/80 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {generatingOpposing ? 'Refreshing...' : 'Regenerate Opposing Response'}
                   </button>
                 </div>
               ) : openingResponse ? (
-                <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-5">
+                <div className="space-y-3 rounded-3xl border border-amber-200/70 bg-white p-5">
                   <LoadingSpinner label="Generating opposing counsel response" />
-                  <p className="text-sm leading-7 text-slate-400">The next courtroom stage is generating now. The rebuttal editor will unlock after the response is returned.</p>
+                  <p className="text-sm leading-7 text-slate-600">The next courtroom stage is generating now. The rebuttal editor will unlock after the response is returned.</p>
                 </div>
               ) : (
                 <EmptyPanel title="Opposing response pending" description="Submit the opening argument to trigger the AI opposing counsel challenge." />
@@ -733,12 +733,12 @@ export function PracticeArenaPage() {
             {/* Rebuttal */}
             <GlassCard className="min-h-[360px]" title="Rebuttal" subtitle="Respond after the opposing counsel challenge appears">
               <div className="space-y-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-amber-200/70 bg-white p-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border border-emeraldGlow/30 bg-emeraldGlow/10 text-lg font-semibold text-emeraldGlow">
                     R
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">Rebuttal Desk</p>
+                    <p className="text-sm font-semibold text-slate-900">Rebuttal Desk</p>
                     <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Procedural note: answer only the points raised by opposing counsel.</p>
                   </div>
                 </div>
@@ -750,12 +750,12 @@ export function PracticeArenaPage() {
                     onChange={(e) => setRebuttalArgument(e.target.value)}
                     rows={10}
                     disabled={!rebuttalReady}
-                    className="min-h-[250px] w-full rounded-3xl border border-white/10 bg-[#06111d] px-4 py-4 text-sm leading-7 text-white placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                    className="min-h-[250px] w-full rounded-3xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                     placeholder={rebuttalReady ? 'Target the objection, preserve the record, and respond with discipline.' : 'Wait for the opposing response to unlock rebuttal drafting.'}
                   />
                 </label>
 
-                <div className="flex items-center justify-between gap-4 text-sm text-slate-400">
+                <div className="flex items-center justify-between gap-4 text-sm text-slate-600">
                   <p>Legal drafting style: concise, procedural, and grounded in the record.</p>
                   <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(rebuttalArgument.length)} characters</p>
                 </div>
@@ -765,7 +765,7 @@ export function PracticeArenaPage() {
                     type="button"
                     onClick={handleSubmitRebuttal}
                     disabled={!rebuttalReady || submittingRebuttal || generatingJudge}
-                    className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-electric/40 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {submittingRebuttal ? 'Submitting Rebuttal...' : generatingJudge ? 'Generating Judge Evaluation...' : 'Submit Rebuttal'}
                   </button>
@@ -775,15 +775,15 @@ export function PracticeArenaPage() {
                 {rebuttalResponse ? (
                   <div className="rounded-3xl border border-emeraldGlow/30 bg-emeraldGlow/10 p-5">
                     <p className="text-xs uppercase tracking-[0.28em] text-emeraldGlow">Rebuttal Record</p>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white">{safeString(rebuttalResponse.content, rebuttalArgument)}</p>
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-900">{safeString(rebuttalResponse.content, rebuttalArgument)}</p>
+                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
                       <span>Round {Math.max(2, safeNumber(rebuttalResponse.round_number ?? rebuttalResponse.current_round, 2))}</span>
                       <span>•</span>
                       <span>{safeString(rebuttalResponse.argument_type, 'rebuttal')}</span>
                       {rebuttalFlags.length ? (
                         <>
                           <span>•</span>
-                          <span className="text-rose-200">Hallucination flags: {rebuttalFlags.join(', ')}</span>
+                          <span className="text-amber-700">Hallucination flags: {rebuttalFlags.join(', ')}</span>
                         </>
                       ) : null}
                     </div>
@@ -807,7 +807,7 @@ export function PracticeArenaPage() {
                     J
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">Judge Panel</p>
+                    <p className="text-sm font-semibold text-slate-900">Judge Panel</p>
                     <p className="text-xs uppercase tracking-[0.28em] text-mutedGold">Workflow stage: {judgeWorkflowStage}</p>
                   </div>
                 </div>
@@ -826,25 +826,25 @@ export function PracticeArenaPage() {
                 {judgeEvaluation ? (
                   <>
                     <JudgeCard title="Burden of Proof Analysis">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-200">{safeString(judgeEvaluation.burden_of_proof_analysis, 'No burden analysis returned.')}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{safeString(judgeEvaluation.burden_of_proof_analysis, 'No burden analysis returned.')}</p>
                     </JudgeCard>
 
                     <JudgeCard title="Contradictions Found">
                       {contradictionCards.length ? (
                         <div className="space-y-2">
                           {contradictionCards.map((item, index) => (
-                            <div key={`${item}-${index}`} className="rounded-2xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm leading-7 text-rose-50">
+                            <div key={`${item}-${index}`} className="rounded-2xl border border-amber-300/60 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900">
                               {item}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm leading-7 text-slate-400">No contradictions were reported.</p>
+                        <p className="text-sm leading-7 text-slate-600">No contradictions were reported.</p>
                       )}
                     </JudgeCard>
 
                     <JudgeCard title="Evidentiary Sufficiency">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-200">{safeString(judgeEvaluation.evidentiary_sufficiency, 'No evidentiary sufficiency analysis returned.')}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{safeString(judgeEvaluation.evidentiary_sufficiency, 'No evidentiary sufficiency analysis returned.')}</p>
                     </JudgeCard>
 
                     <CircularScoreMeter score={advocacyScore} label="Advocacy Score" />
@@ -854,19 +854,19 @@ export function PracticeArenaPage() {
                     </JudgeCard>
 
                     <JudgeCard title="Hallucination Penalty">
-                      <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 p-4">
-                        <p className="text-3xl font-semibold text-rose-100">{Math.round(hallucinationPenalty)}</p>
-                        <p className="mt-2 text-sm text-rose-100/80">Red warning indicator for unsupported or speculative content.</p>
+                      <div className="rounded-2xl border border-amber-300/60 bg-amber-100/70 p-4">
+                        <p className="text-3xl font-semibold text-amber-800">{Math.round(hallucinationPenalty)}</p>
+                        <p className="mt-2 text-sm text-amber-700/80">Warning indicator for unsupported or speculative content.</p>
                       </div>
                     </JudgeCard>
 
                     <JudgeCard title="Educational Feedback">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-200">{safeString(judgeEvaluation.educational_feedback, 'No educational feedback returned.')}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{safeString(judgeEvaluation.educational_feedback, 'No educational feedback returned.')}</p>
                     </JudgeCard>
 
                     <div className="rounded-3xl border border-mutedGold/30 bg-gradient-to-r from-mutedGold/20 via-mutedGold/10 to-transparent p-5">
                       <p className="text-xs uppercase tracking-[0.28em] text-mutedGold">Termination Recommendation</p>
-                      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white">
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-900">
                         {safeString(judgeEvaluation.termination_recommendation, 'No termination recommendation returned.')}
                       </p>
                     </div>
@@ -875,13 +875,13 @@ export function PracticeArenaPage() {
                       {learningPoints.length ? (
                         <div className="grid gap-3 sm:grid-cols-2">
                           {learningPoints.map((point, index) => (
-                            <div key={`${point}-${index}`} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7 text-slate-200">
+                            <div key={`${point}-${index}`} className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm leading-7 text-slate-800">
                               {point}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm leading-7 text-slate-400">No learning points returned.</p>
+                        <p className="text-sm leading-7 text-slate-600">No learning points returned.</p>
                       )}
                     </JudgeCard>
 
