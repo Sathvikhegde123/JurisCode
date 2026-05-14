@@ -61,22 +61,6 @@ function normalizeStatus(raw: unknown, fallback: SessionStatus): SessionStatus {
   return fallback;
 }
 
-function formatPremise(payload: unknown) {
-  if (typeof payload === 'string') {
-    return payload;
-  }
-
-  if (!payload) {
-    return '';
-  }
-
-  try {
-    return JSON.stringify(payload, null, 2);
-  } catch {
-    return String(payload);
-  }
-}
-
 function StatusBadge({ label, tone }: { label: string; tone: SessionStatus | 'neutral' }) {
   const className =
     tone === 'neutral'
@@ -267,8 +251,6 @@ export function PracticeArenaPage() {
     return safeString(premise, '');
   }, [premiseResponse]);
   const lockedFacts = premiseResponse?.locked_facts ?? [];
-  const premiseSessionId = safeString(premiseResponse?.session_id, sessionId || 'Pending');
-  const premiseStage = safeString(premiseResponse?.workflow_stage, workflowStage || 'Pending');
 
   const workflowIndex = useMemo(() => {
     if (!sessionId) return 0;
@@ -506,17 +488,16 @@ export function PracticeArenaPage() {
     <div className="flex h-[calc(100vh-120px)] min-h-0 flex-col gap-0 overflow-hidden">
 
       {/* ── Top header bar — full width ── */}
-      <header className="border-b border-amber-200/70 bg-white px-6 py-5 backdrop-blur-xl">
-        <div className="flex flex-col gap-4 lg:flex-col lg:items-center lg:justify-between">
+      <header className="px-6 py-2 backdrop-blur-xl">
+        {!premiseResponse?(
+            <div className="flex flex-col gap-4 lg:flex-col lg:items-center lg:justify-between bg-white py-4 px-4 rounded-3xl border border-amber-200/70  ">
           <div className="space-y-1">
-            <p className="section-kicker">Practice Arena</p>
             <h1 className="text-2xl font-semibold text-slate-900 lg:text-3xl">
               Courtroom workflow — session setup to judicial evaluation
             </h1>
           </div>
-          <div className="flex shrink-0 flex-wrap items-end gap-3">
+          <div className="flex shrink-0 flex-wrap items-center gap-3 justify-center">
             <div className="flex flex-col gap-2 rounded-3xl border border-amber-200/70 bg-white px-4 py-3">
-              <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">Session setup</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <label className="flex flex-col text-[10px] uppercase tracking-[0.28em] text-slate-500">
                   <span className="mb-1">Topic</span>
@@ -579,6 +560,28 @@ export function PracticeArenaPage() {
             </label>
           </div>
         </div>
+          ):(<div></div>)
+        }
+        {premiseResponse ? (
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr] bg-transparent">
+            <div className="rounded-3xl border border-amber-200/70 bg-[#fff7ea] p-5">
+              <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Premise</p>
+              <div className="mt-3 max-h-40 overflow-y-auto text-sm leading-7 text-slate-800">
+                {premiseText || 'Premise will appear after generation.'}
+              </div>
+            </div>
+            <div className="rounded-3xl border border-amber-200/70 bg-white p-5">
+              <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Locked facts</p>
+              <div className="mt-3 max-h-40 space-y-2 overflow-y-auto text-sm leading-6 text-slate-700">
+                {lockedFacts.length ? lockedFacts.map((fact, index) => (
+                  <p key={`${fact}-${index}`} className="rounded-2xl border border-orange-600 bg-amber-100/70 px-3 py-2">
+                    {fact}
+                  </p>
+                )) : <p className="text-slate-500">No locked facts yet.</p>}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </header>
 
       {/* ── Session metrics + stepper — full width ── */}
@@ -606,40 +609,6 @@ export function PracticeArenaPage() {
         <div className="flex-[1.6] min-h-0 overflow-y-auto border-r border-amber-200/70 px-6 py-6">
           <div className="space-y-6">
 
-            {/* Premise Panel */}
-            <GlassCard className="min-h-[420px]" title="Premise Panel" subtitle="">
-              <div className="space-y-4">
-                {/* <div className="grid gap-3 sm:grid-cols-2">
-                  <MetricTile label="Session ID" value={premiseSessionId} />
-                  <MetricTile label="Workflow Stage" value={premiseStage} />
-                </div> */}
-
-                <div className="rounded-3xl border border-amber-200/70 bg-[#fff7ea] p-5">
-                    <pre className="whitespace-pre-wrap text-xs leading-6 text-slate-800">
-                      {premiseText || 'Premise will appear after generation.'}
-                    </pre>
-                </div>
-
-                <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Locked Facts</p>
-                  <div className="max-h-[320px] space-y-3 overflow-y-auto pr-1">
-                    {lockedFacts.length
-                      ? lockedFacts.map((fact, index) => (
-                        <div key={`${fact}-${index}`} className="rounded-2xl border border-orange-600 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900 shadow-inner">
-                          <p className="text-[11px] uppercase tracking-[0.28em] text-amber-700">Locked Fact {index + 1}</p>
-                          <p className="mt-2 whitespace-pre-wrap">{fact}</p>
-                        </div>
-                      ))
-                      : <EmptyPanel title="No locked facts yet" description="Generate the premise to populate the evidence record." />}
-                  </div>
-                </div>
-
-                {!premiseResponse
-                  ? <EmptyPanel title="Premise not generated" description="Create a session and generate the premise to unlock the opening argument stage." />
-                  : null}
-              </div>
-            </GlassCard>
-
             <div className="sticky top-6 rounded-3xl border border-amber-200/70 bg-white p-6 shadow-sm max-h-[calc(100vh-220px)] overflow-y-auto">
               <div className="space-y-8">
                 <section className="space-y-4">
@@ -649,7 +618,7 @@ export function PracticeArenaPage() {
                     <textarea
                       value={openingArgument}
                       onChange={(e) => setOpeningArgument(e.target.value)}
-                      rows={12}
+                      rows={6}
                       disabled={!openingReady}
                       className="min-h-[240px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                       placeholder={openingReady ? 'Frame the issue, state the rule, and anchor your facts.' : 'Generate the premise to unlock the opening editor.'}
@@ -726,7 +695,7 @@ export function PracticeArenaPage() {
                     <textarea
                       value={rebuttalArgument}
                       onChange={(e) => setRebuttalArgument(e.target.value)}
-                      rows={10}
+                      rows={4}
                       disabled={!rebuttalReady}
                       className="min-h-[220px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                       placeholder={rebuttalReady ? 'Target the objection, preserve the record, and respond with discipline.' : 'Wait for the opposing response to unlock rebuttal drafting.'}
