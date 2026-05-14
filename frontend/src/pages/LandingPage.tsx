@@ -56,7 +56,7 @@ export function LandingPage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/practice"
-                className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-6 py-3 font-semibold text-white shadow-sm transition hover:scale-[1.02] hover:brightness-110"
+                className="rounded-full bg-orange-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:scale-[1.02] hover:brightness-110"
               >
                 Start Practice
               </Link>

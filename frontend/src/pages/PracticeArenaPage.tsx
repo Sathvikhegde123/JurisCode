@@ -217,7 +217,7 @@ export function PracticeArenaPage() {
                 type="button"
                 onClick={handleStartPractice}
                 disabled={starting || loadingMeta}
-                className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-orange-600 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {starting ? 'Starting...' : 'Start Practice'}
               </button>

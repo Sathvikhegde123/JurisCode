@@ -76,7 +76,7 @@ export function ChallengePage() {
             type="button"
             onClick={handleChallenge}
             disabled={loading}
-            className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-orange-600 px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? 'Generating...' : 'Challenge Argument'}
           </button>
