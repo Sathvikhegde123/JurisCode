@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
 import { classNames } from '@/utils/classNames';
 
 type AppLayoutProps = {
@@ -19,11 +18,10 @@ const bottomNavItems = [
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(249,115,22,0.16),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(34,197,94,0.12),_transparent_30%),linear-gradient(180deg,_#fffaf3_0%,_#f7f1e3_100%)] text-slate-900">
-      <Navbar compact />
-      <div className="mx-auto flex max-w-7xl">
-        <Sidebar />
+      <Navbar />
+      <div className="flex w-full">
         <div className="flex min-h-[calc(100vh-73px)] flex-1 flex-col">
-          <main className={classNames('flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-8 xl:px-10 page-fade')}>{children ?? <Outlet />}</main>
+          <main className={classNames('flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-10 page-fade')}>{children ?? <Outlet />}</main>
           <Footer />
         </div>
       </div>

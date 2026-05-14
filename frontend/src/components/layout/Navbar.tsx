@@ -17,7 +17,7 @@ type NavbarProps = {
 export function Navbar({ compact = false }: NavbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-amber-200/70 bg-white backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
         <Link to="/" className="group flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-2xl border border-electric/30 bg-electric/10 text-sm font-bold text-electric shadow-sm transition group-hover:border-electric/50">
             J
@@ -29,7 +29,7 @@ export function Navbar({ compact = false }: NavbarProps) {
         </Link>
 
         {!compact ? (
-          <nav className="hidden items-center gap-2 xl:flex" aria-label="Primary navigation">
+          <nav className="hidden items-center gap-2 lg:flex" aria-label="Primary navigation">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}

@@ -259,7 +259,13 @@ export function PracticeArenaPage() {
     return () => window.clearInterval(timer);
   }, [opposingResponse]);
 
-  const premiseText = useMemo(() => formatPremise(premiseResponse?.premise), [premiseResponse]);
+  const premiseText = useMemo(() => {
+    const premise = premiseResponse?.premise;
+    if (isRecord(premise)) {
+      return safeString(premise.scenario_text, '');
+    }
+    return safeString(premise, '');
+  }, [premiseResponse]);
   const lockedFacts = premiseResponse?.locked_facts ?? [];
   const premiseSessionId = safeString(premiseResponse?.session_id, sessionId || 'Pending');
   const premiseStage = safeString(premiseResponse?.workflow_stage, workflowStage || 'Pending');
@@ -305,6 +311,31 @@ export function PracticeArenaPage() {
 
   const openingReady = Boolean(sessionId && premiseResponse);
   const rebuttalReady = Boolean(opposingResponse);
+  const opposingSpeech = safeString(opposingResponse?.content, '').trim();
+  const judgeSpeech = useMemo(() => {
+    if (!judgeEvaluation) {
+      return '';
+    }
+    const parts = [
+      safeString(judgeEvaluation.burden_of_proof_analysis, ''),
+      safeString(judgeEvaluation.evidentiary_sufficiency, ''),
+      safeString(judgeEvaluation.educational_feedback, ''),
+      safeString(judgeEvaluation.termination_recommendation, ''),
+    ].filter((item) => item.trim().length > 0);
+    return parts.join('\n\n');
+  }, [judgeEvaluation]);
+
+  const speakText = (text: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      return;
+    }
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return;
+    }
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(trimmed));
+  };
 
   const handleCreateSession = async () => {
     setCreatingSession(true);
@@ -472,19 +503,16 @@ export function PracticeArenaPage() {
 
   return (
     // Full-width two-panel layout — no max-width cap, gutters via px
-    <div className="flex h-full min-h-screen flex-col gap-0">
+    <div className="flex h-[calc(100vh-120px)] min-h-0 flex-col gap-0 overflow-hidden">
 
       {/* ── Top header bar — full width ── */}
       <header className="border-b border-amber-200/70 bg-white px-6 py-5 backdrop-blur-xl">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 lg:flex-col lg:items-center lg:justify-between">
           <div className="space-y-1">
             <p className="section-kicker">Practice Arena</p>
             <h1 className="text-2xl font-semibold text-slate-900 lg:text-3xl">
               Courtroom workflow — session setup to judicial evaluation
             </h1>
-            <p className="max-w-3xl text-sm leading-7 text-slate-600">
-              Follow the staged training loop: create a session, lock the premise, draft the opening, absorb the opposing response, prepare the rebuttal, and review the final judgment.
-            </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-end gap-3">
             <div className="flex flex-col gap-2 rounded-3xl border border-amber-200/70 bg-white px-4 py-3">
@@ -533,7 +561,7 @@ export function PracticeArenaPage() {
               type="button"
               onClick={handleCreateSession}
               disabled={creatingSession || loadingMeta}
-              className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-orange-600 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creatingSession ? 'Creating Session...' : 'Create Session'}
             </button>
@@ -554,7 +582,7 @@ export function PracticeArenaPage() {
       </header>
 
       {/* ── Session metrics + stepper — full width ── */}
-      <div className="border-b border-amber-200/70 bg-[#fff3e6]/70 px-6 py-4 backdrop-blur-xl">
+      {/* <div className="border-b border-amber-200/70 bg-[#fff3e6]/70 px-6 py-4 backdrop-blur-xl">
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricTile label="Session ID" value={sessionId || 'Pending'} helper="Active session." />
           <MetricTile label="Topic" value={selectedTopic || 'Pending'} helper="Practice topic." />
@@ -569,30 +597,27 @@ export function PracticeArenaPage() {
           </div>
         </div>
         <StageStepper activeIndex={workflowIndex} />
-      </div>
+      </div> */}
 
       {/* ── Main two-panel body ── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
 
         {/* LEFT PANEL — wider, scrollable, courtroom interaction */}
-        <div className="flex-[1.6] overflow-y-auto border-r border-amber-200/70 px-6 py-6">
+        <div className="flex-[1.6] min-h-0 overflow-y-auto border-r border-amber-200/70 px-6 py-6">
           <div className="space-y-6">
 
             {/* Premise Panel */}
-            <GlassCard className="min-h-[420px]" title="Premise Panel" subtitle="Generated premise, locked facts, and legal issue summary">
+            <GlassCard className="min-h-[420px]" title="Premise Panel" subtitle="">
               <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-2">
+                {/* <div className="grid gap-3 sm:grid-cols-2">
                   <MetricTile label="Session ID" value={premiseSessionId} />
                   <MetricTile label="Workflow Stage" value={premiseStage} />
-                </div>
+                </div> */}
 
                 <div className="rounded-3xl border border-amber-200/70 bg-[#fff7ea] p-5">
-                  <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Premise</p>
-                  <div className="mt-3 max-h-64 overflow-y-auto rounded-2xl border border-amber-200/70 bg-white p-4">
                     <pre className="whitespace-pre-wrap text-xs leading-6 text-slate-800">
                       {premiseText || 'Premise will appear after generation.'}
                     </pre>
-                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -600,7 +625,7 @@ export function PracticeArenaPage() {
                   <div className="max-h-[320px] space-y-3 overflow-y-auto pr-1">
                     {lockedFacts.length
                       ? lockedFacts.map((fact, index) => (
-                        <div key={`${fact}-${index}`} className="rounded-2xl border border-amber-300/60 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900 shadow-inner">
+                        <div key={`${fact}-${index}`} className="rounded-2xl border border-orange-600 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900 shadow-inner">
                           <p className="text-[11px] uppercase tracking-[0.28em] text-amber-700">Locked Fact {index + 1}</p>
                           <p className="mt-2 whitespace-pre-wrap">{fact}</p>
                         </div>
@@ -615,192 +640,131 @@ export function PracticeArenaPage() {
               </div>
             </GlassCard>
 
-            {/* Student Advocate — Opening */}
-            <GlassCard className="min-h-[420px]" title="Student Advocate" subtitle="Large legal drafting area for the opening argument">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-amber-200/70 bg-white p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-electric/30 bg-electric/10 text-lg font-semibold text-electric">
-                    A
+            <div className="sticky top-6 rounded-3xl border border-amber-200/70 bg-white p-6 shadow-sm max-h-[calc(100vh-220px)] overflow-y-auto">
+              <div className="space-y-8">
+                <section className="space-y-4">
+                  <p className="text-xs uppercase tracking-[0.32em] text-slate-800">Student advocate</p>
+                  <label className="block">
+                    <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-800">Opening argument</span>
+                    <textarea
+                      value={openingArgument}
+                      onChange={(e) => setOpeningArgument(e.target.value)}
+                      rows={12}
+                      disabled={!openingReady}
+                      className="min-h-[240px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                      placeholder={openingReady ? 'Frame the issue, state the rule, and anchor your facts.' : 'Generate the premise to unlock the opening editor.'}
+                    />
+                  </label>
+                  <div className="flex flex-col gap-2 text-sm text-slate-600">
+                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(openingArgument.length)} characters</p>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Advocate Desk</p>
-                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Courtroom transcript style</p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleSubmitOpening}
+                      disabled={!openingReady || submittingOpening || generatingOpposing}
+                      className="rounded-full bg-orange-600 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {submittingOpening ? 'Submitting Opening...' : generatingOpposing ? 'Generating Opposing Response...' : 'Submit Opening Argument'}
+                    </button>
                   </div>
-                </div>
-
-                <label className="block">
-                  <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Opening Argument</span>
-                  <textarea
-                    value={openingArgument}
-                    onChange={(e) => setOpeningArgument(e.target.value)}
-                    rows={12}
-                    disabled={!openingReady}
-                    className="min-h-[300px] w-full rounded-3xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                    placeholder={openingReady ? 'Frame the issue, state the rule, and anchor your facts.' : 'Generate the premise to unlock the opening editor.'}
-                  />
-                </label>
-
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <p className="text-sm text-slate-600">
-                    Legal writing helper placeholder: open with the issue, keep the rule tight, and connect every paragraph to the locked facts.
-                  </p>
-                  <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(openingArgument.length)} characters</p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSubmitOpening}
-                    disabled={!openingReady || submittingOpening || generatingOpposing}
-                    className="rounded-full bg-gradient-to-r from-electric to-emeraldGlow px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {submittingOpening ? 'Submitting Opening...' : generatingOpposing ? 'Generating Opposing Response...' : 'Submit Opening Argument'}
-                  </button>
-                  <StatusBadge label={openingReady ? 'Ready for opening' : 'Awaiting premise'} tone={openingReady ? 'awaiting-opening' : 'active'} />
-                </div>
-
-                {openingResponse ? (
-                  <div className="rounded-3xl border border-electric/30 bg-electric/10 p-5">
-                    <p className="text-xs uppercase tracking-[0.28em] text-electric">Opening Record</p>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-900">{safeString(openingResponse.content, openingArgument)}</p>
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                      <span>Round {Math.max(1, safeNumber(openingResponse.round_number ?? openingResponse.current_round, 1))}</span>
-                      <span>•</span>
-                      <span>{safeString(openingResponse.argument_type, 'opening')}</span>
-                      {openingFlags.length ? (
-                        <>
-                          <span>•</span>
-                          <span className="text-amber-700">Hallucination flags: {openingFlags.join(', ')}</span>
-                        </>
-                      ) : null}
+                  {/* {openingResponse ? (
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Opening record</p>
+                      <p className="whitespace-pre-wrap leading-7">{safeString(openingResponse.content, openingArgument)}</p>
                     </div>
+                  ) : null} */}
+                </section>
+
+                <div className="border-t border-amber-200/70" />
+
+                <section className="space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Opposing counsel</p>
+                    <button
+                      type="button"
+                      onClick={() => speakText(opposingSpeech)}
+                      disabled={!opposingSpeech}
+                      className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-xs font-semibold text-slate-900 transition hover:border-amber-300/70 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Listen
+                    </button>
                   </div>
-                ) : null}
+                  {opposingResponse ? (
+                    <div className="space-y-3 text-sm text-slate-700">
+                      <p className="whitespace-pre-wrap leading-7">
+                        {typedOpposing || safeString(opposingResponse.content, 'The opposing counsel response will appear here.')}
+                      </p>
+                      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">
+                        {opposingTimestamp ? `Generated ${formatDateTime(opposingTimestamp)}` : 'Pending response'}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => void handleGenerateOpposing('manual').catch(() => undefined)}
+                        disabled={generatingOpposing}
+                        className="rounded-full border border-amber-200/70 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:border-amber-300/70 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {generatingOpposing ? 'Refreshing...' : 'Regenerate response'}
+                      </button>
+                    </div>
+                  ) : openingResponse ? (
+                    <div className="space-y-2 text-sm text-slate-600">
+                      <LoadingSpinner label="Generating opposing counsel response" />
+                      <p>The next stage is generating now.</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-600">Submit the opening argument to trigger the opposing response.</p>
+                  )}
+                </section>
+
+                <div className="border-t border-amber-200/70" />
+
+                <section className="space-y-4">
+                  <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Rebuttal</p>
+                  <label className="block">
+                    <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Rebuttal argument</span>
+                    <textarea
+                      value={rebuttalArgument}
+                      onChange={(e) => setRebuttalArgument(e.target.value)}
+                      rows={10}
+                      disabled={!rebuttalReady}
+                      className="min-h-[220px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                      placeholder={rebuttalReady ? 'Target the objection, preserve the record, and respond with discipline.' : 'Wait for the opposing response to unlock rebuttal drafting.'}
+                    />
+                  </label>
+                  <div className="flex flex-col gap-2 text-sm text-slate-600">
+                    <p>Keep it concise, procedural, and grounded in the record.</p>
+                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(rebuttalArgument.length)} characters</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleSubmitRebuttal}
+                      disabled={!rebuttalReady || submittingRebuttal || generatingJudge}
+                      className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {submittingRebuttal ? 'Submitting Rebuttal...' : generatingJudge ? 'Generating Judge Evaluation...' : 'Submit Rebuttal'}
+                    </button>
+                  </div>
+                  {/* {rebuttalResponse ? (
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Rebuttal record</p>
+                      <p className="whitespace-pre-wrap leading-7">{safeString(rebuttalResponse.content, rebuttalArgument)}</p>
+                    </div>
+                  ) : null} */}
+                </section>
               </div>
-            </GlassCard>
-
-            {/* Opposing Counsel Response */}
-            <GlassCard className="min-h-[360px]" title="Opposing Counsel Response" subtitle="Auto-generated challenge after the opening argument is submitted">
-              {opposingResponse ? (
-                <div className="space-y-4 rounded-3xl border border-amber-300/60 bg-amber-100/70 p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-amber-300/70 bg-amber-100/70 text-sm font-semibold text-amber-800">
-                        AI
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">AI Opposing Counsel</p>
-                        <p className="text-xs uppercase tracking-[0.28em] text-amber-700">Legal challenge transcript</p>
-                      </div>
-                    </div>
-                    <div className="text-right text-xs uppercase tracking-[0.22em] text-amber-700">
-                      <p>{opposingTimestamp ? formatDateTime(opposingTimestamp) : 'Pending'}</p>
-                      <p className="mt-1 text-[10px] tracking-[0.28em] text-amber-600/80">Typing animation enabled</p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
-                    <p className="mb-3 text-xs uppercase tracking-[0.28em] text-slate-500">Courtroom Dialogue</p>
-                    <p className="whitespace-pre-wrap text-sm leading-8 text-slate-800">
-                      {typedOpposing || safeString(opposingResponse.content, 'The opposing counsel response will appear here.')}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
-                    <StatusBadge label={sessionStatus} tone={sessionStatus} />
-                    <span>{safeString(opposingResponse.workflow_stage, workflowStage)}</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleGenerateOpposing('manual').catch(() => undefined)}
-                    disabled={generatingOpposing}
-                    className="rounded-full border border-amber-300/70 bg-amber-100/70 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100/80 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {generatingOpposing ? 'Refreshing...' : 'Regenerate Opposing Response'}
-                  </button>
-                </div>
-              ) : openingResponse ? (
-                <div className="space-y-3 rounded-3xl border border-amber-200/70 bg-white p-5">
-                  <LoadingSpinner label="Generating opposing counsel response" />
-                  <p className="text-sm leading-7 text-slate-600">The next courtroom stage is generating now. The rebuttal editor will unlock after the response is returned.</p>
-                </div>
-              ) : (
-                <EmptyPanel title="Opposing response pending" description="Submit the opening argument to trigger the AI opposing counsel challenge." />
-              )}
-            </GlassCard>
-
-            {/* Rebuttal */}
-            <GlassCard className="min-h-[360px]" title="Rebuttal" subtitle="Respond after the opposing counsel challenge appears">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-amber-200/70 bg-white p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-emeraldGlow/30 bg-emeraldGlow/10 text-lg font-semibold text-emeraldGlow">
-                    R
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Rebuttal Desk</p>
-                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Procedural note: answer only the points raised by opposing counsel.</p>
-                  </div>
-                </div>
-
-                <label className="block">
-                  <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Rebuttal Argument</span>
-                  <textarea
-                    value={rebuttalArgument}
-                    onChange={(e) => setRebuttalArgument(e.target.value)}
-                    rows={10}
-                    disabled={!rebuttalReady}
-                    className="min-h-[250px] w-full rounded-3xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                    placeholder={rebuttalReady ? 'Target the objection, preserve the record, and respond with discipline.' : 'Wait for the opposing response to unlock rebuttal drafting.'}
-                  />
-                </label>
-
-                <div className="flex items-center justify-between gap-4 text-sm text-slate-600">
-                  <p>Legal drafting style: concise, procedural, and grounded in the record.</p>
-                  <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(rebuttalArgument.length)} characters</p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSubmitRebuttal}
-                    disabled={!rebuttalReady || submittingRebuttal || generatingJudge}
-                    className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {submittingRebuttal ? 'Submitting Rebuttal...' : generatingJudge ? 'Generating Judge Evaluation...' : 'Submit Rebuttal'}
-                  </button>
-                  <StatusBadge label={rebuttalReady ? 'Ready for rebuttal' : 'Awaiting opposing counsel'} tone={rebuttalReady ? 'rebuttal' : 'active'} />
-                </div>
-
-                {rebuttalResponse ? (
-                  <div className="rounded-3xl border border-emeraldGlow/30 bg-emeraldGlow/10 p-5">
-                    <p className="text-xs uppercase tracking-[0.28em] text-emeraldGlow">Rebuttal Record</p>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-900">{safeString(rebuttalResponse.content, rebuttalArgument)}</p>
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                      <span>Round {Math.max(2, safeNumber(rebuttalResponse.round_number ?? rebuttalResponse.current_round, 2))}</span>
-                      <span>•</span>
-                      <span>{safeString(rebuttalResponse.argument_type, 'rebuttal')}</span>
-                      {rebuttalFlags.length ? (
-                        <>
-                          <span>•</span>
-                          <span className="text-amber-700">Hallucination flags: {rebuttalFlags.join(', ')}</span>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </GlassCard>
+            </div>
 
           </div>
         </div>
 
         {/* RIGHT PANEL — narrower, sticky scrollable, judge analysis */}
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6">
           <div className="space-y-4">
 
             {/* Judge Analysis — live */}
-            <GlassCard className="min-h-[280px]" title="Judge Analysis" subtitle="Live remarks that update as the session progresses">
+            {/* <GlassCard className="min-h-[280px]" title="Judge Analysis" subtitle="Live remarks that update as the session progresses">
               <div className="space-y-4">
                 <div className="flex items-center gap-3 rounded-2xl border border-mutedGold/25 bg-mutedGold/10 p-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border border-mutedGold/35 bg-mutedGold/15 text-lg font-semibold text-mutedGold">
@@ -818,11 +782,25 @@ export function PracticeArenaPage() {
                   <MetricTile label="Burden Reminder" value={burdenReminder} helper="Keep the burden of proof and record discipline explicit." />
                 </div>
               </div>
-            </GlassCard>
+            </GlassCard> */}
 
             {/* Final Judge Evaluation */}
-            <GlassCard className="min-h-[520px]" title="Final Judge Evaluation" subtitle="Each field is displayed separately once the judge endpoint responds">
+            <GlassCard className="min-h-[520px]">
               <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-900">Final Judge Evaluation</p>
+                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Each field is displayed separately once the judge endpoint responds</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => speakText(judgeSpeech)}
+                    disabled={!judgeSpeech}
+                    className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-xs font-semibold text-slate-900 transition hover:border-amber-300/70 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Listen
+                  </button>
+                </div>
                 {judgeEvaluation ? (
                   <>
                     <JudgeCard title="Burden of Proof Analysis">
@@ -833,7 +811,7 @@ export function PracticeArenaPage() {
                       {contradictionCards.length ? (
                         <div className="space-y-2">
                           {contradictionCards.map((item, index) => (
-                            <div key={`${item}-${index}`} className="rounded-2xl border border-amber-300/60 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900">
+                            <div key={`${item}-${index}`} className="rounded-2xl border border-orange-600 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900">
                               {item}
                             </div>
                           ))}
@@ -854,7 +832,7 @@ export function PracticeArenaPage() {
                     </JudgeCard>
 
                     <JudgeCard title="Hallucination Penalty">
-                      <div className="rounded-2xl border border-amber-300/60 bg-amber-100/70 p-4">
+                      <div className="rounded-2xl border border-orange-600 bg-amber-100/70 p-4">
                         <p className="text-3xl font-semibold text-amber-800">{Math.round(hallucinationPenalty)}</p>
                         <p className="mt-2 text-sm text-amber-700/80">Warning indicator for unsupported or speculative content.</p>
                       </div>

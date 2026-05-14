@@ -12,7 +12,7 @@ export function GlassCard({ children, className, title, subtitle }: GlassCardPro
   return (
     <section
       className={classNames(
-        'rounded-3xl border border-amber-200/70 bg-white p-5 backdrop-blur-xl transition duration-200 hover:border-electric/30',
+        'rounded-3xl border border-orange-600 bg-white p-5 backdrop-blur-xl transition duration-200 hover:border-orange-900',
         className,
       )}
     >
