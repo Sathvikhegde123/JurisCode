@@ -76,14 +76,18 @@ class ModelManager:
             prompt += f"<|{msg['role']}|>\n{msg['content']}\n"
         prompt += "<|assistant|>\n"
 
-        def _call():
-            response = self._llm(
-                prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                stop=stop or ["<|system|>", "<|user|>", "<|assistant|>", "</s>"],
-                **kwargs
-            )
-            return response["choices"][0]["text"]
+        async with self._lock:
+            if self._llm is None:
+                raise RuntimeError("Model was unloaded while generating.")
+            
+            def _call():
+                response = self._llm(
+                    prompt,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    stop=stop or ["<|system|>", "<|user|>", "<|assistant|>", "</s>"],
+                    **kwargs
+                )
+                return response["choices"][0]["text"]
 
-        return await asyncio.to_thread(_call)
+            return await asyncio.to_thread(_call)

@@ -49,8 +49,10 @@ class OpposingService:
             )
 
             messages = [{"role": "user", "content": prompt}]
-            raw = await self.mm.generate_chat(messages, temperature=0.7, max_tokens=1536)
-        except Exception:
+            raw = await self.mm.generate_chat(messages, temperature=0.7, max_tokens=1024)
+        except Exception as e:
+            # Log the full error for debugging but return the fallback to the user
+            print(f"[OpposingService] Critical Error during generation: {type(e).__name__}: {str(e)}")
             raw = self._fallback_response(premise, opening_text)
         finally:
             await self.mm.unload_model()
