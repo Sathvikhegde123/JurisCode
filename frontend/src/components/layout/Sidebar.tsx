@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { MessageCircleIcon } from '@/components/scenarioAnalyzer/ScenarioIcons';
 import { classNames } from '@/utils/classNames';
 
 const navItems = [
@@ -8,6 +9,7 @@ const navItems = [
   { to: '/sessions', label: 'Session History' },
   { to: '/models', label: 'Model Status' },
   { to: '/learn', label: 'Learning Hub' },
+  { to: '/scenario-analyzer', label: 'Citizen Scenario Analyzer' },
 ];
 
 export function Sidebar() {
@@ -30,13 +32,14 @@ export function Sidebar() {
             to={item.to}
             className={({ isActive }) =>
               classNames(
-                'rounded-2xl border px-4 py-3 text-sm transition',
+                'flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm transition',
                 isActive
                   ? 'border-electric/30 bg-electric/10 text-slate-900 shadow-[0_0_0_1px_rgba(249,115,22,0.18)]'
                   : 'border-amber-200/70 bg-white text-slate-700 hover:border-amber-300/70 hover:bg-amber-50/80 hover:text-slate-900',
               )
             }
           >
+            {item.to === '/scenario-analyzer' ? <MessageCircleIcon className="h-4 w-4 shrink-0 text-electric" /> : null}
             {item.label}
           </NavLink>
         ))}

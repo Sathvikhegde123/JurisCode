@@ -1,0 +1,88 @@
+{
+  "issue_type": "rera_delay",
+  "display_name": "Builder Delay / Apartment Possession Delay",
+  "domain": "property_law",
+  "source_grounding_level": "curated_official_statutory_summary",
+  "source_pack_version": "v1",
+  "official_sources": [
+    {
+      "act_name": "Real Estate (Regulation and Development) Act, 2016",
+      "section_reference": "Promoter duties, allottee rights, complaint/redressal provisions; exact sections to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for delayed possession, real estate project transparency, promoter obligations, allottee rights, and RERA complaint mechanism.",
+      "verified": false
+    },
+    {
+      "act_name": "State RERA Rules / State RERA Authority Regulations",
+      "section_reference": "To be identified based on state",
+      "source_type": "state_rules",
+      "source_origin": "State RERA authority",
+      "relevance": "Complaint filing, compensation procedure, project registration status, and state-specific RERA process.",
+      "verified": false
+    }
+  ],
+  "plain_rule_summary": [
+    "Builder delay issues usually depend on the builder-buyer agreement, promised possession date, payments made, project registration, occupancy/completion status, and reasons for delay.",
+    "The RERA framework is designed to regulate real estate projects, promote transparency, protect consumers/allottees, and provide a redressal mechanism.",
+    "A buyer/allottee should preserve booking forms, allotment letters, payment receipts, agreement copies, demand letters, and possession-date commitments.",
+    "The system should not calculate final compensation or guarantee refund; it should explain possible options and missing facts."
+  ],
+  "important_documents": [
+    "builder-buyer agreement",
+    "allotment letter",
+    "booking form",
+    "payment receipts",
+    "bank loan/EMI records",
+    "promised possession date document",
+    "project RERA registration number",
+    "builder demand letters",
+    "email/message communication",
+    "occupancy certificate/completion certificate status"
+  ],
+  "common_missing_facts": [
+    "What was the promised possession date?",
+    "Is the project registered under RERA?",
+    "How much payment has been made?",
+    "Is the builder giving a reason for delay?",
+    "Is occupancy/completion certificate available?",
+    "Has the buyer received any revised possession date?",
+    "Which state is the project located in?",
+    "Are other buyers also affected?"
+  ],
+  "possible_rights": [
+    "Possible right to seek information about project status and delay reasons.",
+    "Possible right to approach the relevant RERA authority depending on facts.",
+    "Possible right to seek refund, interest, compensation, or possession depending on agreement and applicable law.",
+    "Possible right to rely on promised possession timeline and payment records."
+  ],
+  "possible_remedies": [
+    "Check RERA project registration and project status.",
+    "Collect agreement, allotment letter, payment receipts, and possession-date proof.",
+    "Send written communication to builder seeking status and timeline.",
+    "Consider filing complaint before the relevant state RERA authority after local legal verification.",
+    "Consult a lawyer if large payment, cancellation, refund, or multiple buyers are involved."
+  ],
+  "possible_outcomes": [
+    "If there is significant delay without valid justification, the buyer may have remedies under RERA depending on facts.",
+    "If delay is due to documented force majeure or regulatory reasons, outcome may depend on evidence.",
+    "If the project is unregistered or misleadingly advertised, regulatory consequences may arise.",
+    "Final relief depends on the agreement, payment history, project status, and state RERA process."
+  ],
+  "safety_triggers": [
+    "builder fraud",
+    "large payment",
+    "cancellation",
+    "refund denied",
+    "project abandoned",
+    "insolvency",
+    "loan default",
+    "court notice"
+  ],
+  "response_guidance": [
+    "Do not calculate final compensation unless exact legal formula is verified.",
+    "Ask for agreement, promised possession date, RERA number, payment proof, and project state.",
+    "Mention RERA authority as possible forum, not guaranteed remedy.",
+    "Warn if project is abandoned, refund denied, or large payment is at risk."
+  ]
+}

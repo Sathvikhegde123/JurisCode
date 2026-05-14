@@ -1,0 +1,94 @@
+{
+  "issue_type": "mutation_vs_title",
+  "display_name": "Mutation Record vs Ownership Title Dispute",
+  "domain": "property_law",
+  "source_grounding_level": "curated_official_statutory_summary",
+  "source_pack_version": "v1",
+  "official_sources": [
+    {
+      "act_name": "Transfer of Property Act, 1882",
+      "section_reference": "Transfer of immovable property provisions; exact section to be verified based on facts",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for understanding transfer of ownership through valid legal documents.",
+      "verified": false
+    },
+    {
+      "act_name": "Registration Act, 1908",
+      "section_reference": "Document registration provisions; exact section to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful where registered documents such as sale deed, gift deed, or partition deed are involved.",
+      "verified": false
+    },
+    {
+      "act_name": "State Land Revenue / Municipal Mutation Rules",
+      "section_reference": "To be identified based on state",
+      "source_type": "state_law",
+      "source_origin": "State revenue law / municipal law",
+      "relevance": "Mutation procedure, revenue entries, khata, patta, RTC, or record-of-rights rules are state-specific.",
+      "verified": false
+    }
+  ],
+  "plain_rule_summary": [
+    "Mutation is generally an administrative/revenue record used for tax, municipal, or land-record purposes.",
+    "A title dispute usually depends on ownership documents such as sale deed, gift deed, will, inheritance documents, partition deed, or court order.",
+    "Mutation entries may support a factual claim, but the underlying ownership document and possession facts are usually more important.",
+    "State-specific revenue rules matter because terms like khata, patta, RTC, and record of rights vary by region."
+  ],
+  "important_documents": [
+    "sale deed",
+    "gift deed",
+    "will",
+    "partition deed",
+    "legal heir certificate",
+    "mutation order",
+    "khata / patta / RTC / record of rights",
+    "property tax receipts",
+    "possession documents",
+    "objection filed before revenue authority"
+  ],
+  "common_missing_facts": [
+    "Whose name is currently in mutation/revenue records?",
+    "What title document supports the ownership claim?",
+    "Was mutation changed after notice to affected parties?",
+    "Was any objection filed before the revenue authority?",
+    "Who is currently in possession?",
+    "Are property tax receipts available?",
+    "Which state/city is the property in?"
+  ],
+  "possible_rights": [
+    "Possible right to challenge an incorrect mutation entry.",
+    "Possible right to rely on valid title documents.",
+    "Possible right to seek correction before the relevant revenue or municipal authority.",
+    "Possible right to approach civil court if ownership/title itself is disputed."
+  ],
+  "possible_remedies": [
+    "Collect title documents and mutation records.",
+    "Check whether mutation was changed after proper notice.",
+    "File objection/appeal before the relevant revenue or municipal authority if applicable.",
+    "Consult a local lawyer if the dispute involves possession, fraud, or competing title documents."
+  ],
+  "possible_outcomes": [
+    "Mutation may be corrected if it was made on incomplete or incorrect information.",
+    "If ownership itself is disputed, the matter may require civil proceedings.",
+    "If mutation supports one party but title documents support another, deeper legal verification is needed.",
+    "Possession and tax records may become supporting evidence but may not alone settle title."
+  ],
+  "safety_triggers": [
+    "fraud",
+    "forged",
+    "force",
+    "encroachment",
+    "possession taken",
+    "illegal possession",
+    "police",
+    "court notice"
+  ],
+  "response_guidance": [
+    "Do not treat mutation as final proof of ownership.",
+    "Explain difference between revenue record and ownership title in simple language.",
+    "Ask for title documents and state-specific records.",
+    "Trigger lawyer warning if fraud, forged documents, or possession risk is mentioned."
+  ]
+}

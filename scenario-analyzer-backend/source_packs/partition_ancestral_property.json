@@ -1,0 +1,99 @@
+{
+  "issue_type": "partition_ancestral_property",
+  "display_name": "Partition / Ancestral Property / Co-heir Dispute",
+  "domain": "property_law",
+  "source_grounding_level": "curated_official_statutory_summary",
+  "source_pack_version": "v1",
+  "official_sources": [
+    {
+      "act_name": "Hindu Succession Act, 1956",
+      "section_reference": "Intestate succession and heirship provisions; exact sections to be verified based on religion and facts",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for inheritance and succession among Hindus where no valid will exists.",
+      "verified": false
+    },
+    {
+      "act_name": "Indian Succession Act, 1925",
+      "section_reference": "Will/testamentary and succession-related provisions where applicable; exact section to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for testamentary succession or non-Hindu succession contexts depending on parties.",
+      "verified": false
+    },
+    {
+      "act_name": "Registration Act, 1908",
+      "section_reference": "Document registration provisions for partition deed, release deed, settlement deed; exact section to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful when partition deed, release deed, or family settlement document is involved.",
+      "verified": false
+    }
+  ],
+  "plain_rule_summary": [
+    "Partition or ancestral property disputes usually depend on relationship between parties, nature of property, succession facts, possession, family arrangements, and documents.",
+    "If the owner died without a will, succession law and heirship become important.",
+    "If there is a will, settlement, release deed, partition deed, or oral family arrangement, document validity and proof become important.",
+    "Possession of different portions, revenue records, tax receipts, and family conduct may become supporting facts."
+  ],
+  "important_documents": [
+    "death certificate",
+    "legal heir certificate",
+    "family tree",
+    "will, if any",
+    "partition deed",
+    "release deed",
+    "family settlement document",
+    "sale deed/title documents",
+    "mutation/revenue records",
+    "tax receipts",
+    "possession proof",
+    "old family correspondence or panchayat records"
+  ],
+  "common_missing_facts": [
+    "Who originally owned the property?",
+    "Was the property ancestral or self-acquired?",
+    "Did the owner leave a will?",
+    "Who are the legal heirs?",
+    "Is there any partition deed, release deed, or family settlement?",
+    "Who is currently in possession of which portion?",
+    "Have mutation entries been changed?",
+    "Was any sale made by one co-sharer without consent?"
+  ],
+  "possible_rights": [
+    "Possible right of legal heirs/co-sharers to claim share depending on succession facts.",
+    "Possible right to seek partition or separate possession depending on facts.",
+    "Possible right to challenge unauthorized sale or exclusion from property records.",
+    "Possible right to demand accounting of rent/income from jointly held property."
+  ],
+  "possible_remedies": [
+    "Prepare family tree and collect death/legal heir documents.",
+    "Collect title documents, mutation records, tax receipts, and possession evidence.",
+    "Check whether any will, release deed, partition deed, or settlement exists.",
+    "Consult a local lawyer if one co-sharer has sold property, changed records, or taken exclusive possession.",
+    "Consider mediation/family settlement where appropriate."
+  ],
+  "possible_outcomes": [
+    "If the property is jointly inherited, co-heirs may have claims depending on succession facts.",
+    "If there is a valid will or settlement, shares may depend on that document.",
+    "If one heir sold more than their share, that sale may be disputed depending on title and facts.",
+    "If long possession or prior partition is claimed, evidence and conduct of parties become important."
+  ],
+  "safety_triggers": [
+    "sold without consent",
+    "force",
+    "threat",
+    "lockout",
+    "fraud",
+    "forged",
+    "mutation changed",
+    "possession taken",
+    "court notice"
+  ],
+  "response_guidance": [
+    "Do not decide shares finally.",
+    "Ask whether property is ancestral/self-acquired and whether a will exists.",
+    "Ask for family tree, title documents, mutation records, and possession facts.",
+    "Warn if unauthorized sale, forged document, or dispossession is alleged."
+  ]
+}

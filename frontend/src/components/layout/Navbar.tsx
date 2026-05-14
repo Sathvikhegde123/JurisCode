@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
+import { MessageCircleIcon } from '@/components/scenarioAnalyzer/ScenarioIcons';
 import { classNames } from '@/utils/classNames';
 
 const navItems = [
@@ -8,6 +9,7 @@ const navItems = [
   { to: '/sessions', label: 'Sessions' },
   { to: '/models', label: 'Models' },
   { to: '/learn', label: 'Learn' },
+  { to: '/scenario-analyzer', label: 'Citizen Scenario Analyzer' },
 ];
 
 type NavbarProps = {
@@ -36,12 +38,13 @@ export function Navbar({ compact = false }: NavbarProps) {
                 to={item.to}
                 className={({ isActive }) =>
                   classNames(
-                    'rounded-full px-4 py-2 text-sm transition',
+                    'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition',
                     isActive ? 'bg-amber-100/70 text-slate-900' : 'text-slate-700 hover:bg-amber-50/70 hover:text-slate-900',
                   )
                 }
               >
-                {item.label}
+                {item.to === '/scenario-analyzer' ? <MessageCircleIcon className="h-4 w-4 shrink-0 text-electric" /> : null}
+                <span className={item.to === '/scenario-analyzer' ? 'max-w-[11rem] truncate sm:max-w-none' : undefined}>{item.label}</span>
               </NavLink>
             ))}
           </nav>
