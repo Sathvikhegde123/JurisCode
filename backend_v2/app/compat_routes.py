@@ -134,6 +134,8 @@ async def opposing_challenge(
 
     session.premise_json = json.dumps({"scenario_text": payload.premise})
     fls.lock_facts(session, payload.premise, fls.extract_facts(payload.premise))
+    # Must advance stage to allow opening argument submission
+    session.workflow_stage = WorkflowStage.FACTS_LOCKED.value
     await ss.update(session)
 
     WorkflowService().validate_transition(session, WorkflowStage.STUDENT_OPENING)

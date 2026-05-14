@@ -75,7 +75,7 @@ function Badge({ label, tone }: { label: string; tone: SessionStatus | 'neutral'
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
-  return <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">{children}</p>;
+  return <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-800">{children}</p>;
 }
 
 function Divider() {
@@ -83,7 +83,7 @@ function Divider() {
 }
 
 function Empty({ text }: { text: string }) {
-  return <p className="text-sm italic text-slate-400">{text}</p>;
+  return <p className="text-sm italic text-slate-800">{text}</p>;
 }
 
 function JSection({ title, children }: { title: string; children: ReactNode }) {
@@ -110,13 +110,13 @@ function StepBar({ activeIndex }: { activeIndex: number }) {
                 'flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold transition-all',
                 done    ? 'border-emerald-400 bg-emerald-400 text-white'
                 : current ? 'border-orange-500 bg-orange-500 text-white'
-                :           'border-slate-200  bg-white       text-slate-400',
+                :           'border-slate-200  bg-white       text-slate-800',
               )}>
                 {done ? '✓' : i + 1}
               </div>
               <span className={classNames(
                 'hidden text-[9px] font-semibold uppercase tracking-wider xl:block',
-                done ? 'text-emerald-500' : current ? 'text-orange-500' : 'text-slate-400',
+                done ? 'text-emerald-500' : current ? 'text-orange-500' : 'text-slate-800',
               )}>
                 {step.label}
               </span>
@@ -147,7 +147,7 @@ function ScoreRing({ score, label }: { score: number; label: string }) {
         </div>
       </div>
       <div>
-        <p className="text-xs uppercase tracking-wider text-slate-400">{label}</p>
+        <p className="text-xs uppercase tracking-wider text-slate-800">{label}</p>
         <p className="text-lg font-bold text-slate-900">{formatPercent(v)}</p>
       </div>
     </div>
@@ -456,7 +456,7 @@ export function PracticeArenaPage() {
                   </p>
                   {/* Locked facts — the ONE intentional inner scroll since lists can be long */}
                   <div className="space-y-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Locked Facts</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-800">Locked Facts</p>
                     <div className="max-h-52 space-y-1.5 overflow-y-auto pr-1">
                       {lockedFacts.length
                         ? lockedFacts.map((f, i) => (
@@ -464,7 +464,7 @@ export function PracticeArenaPage() {
                             <span className="mr-2 font-bold text-amber-400">#{i + 1}</span>{f}
                           </div>
                         ))
-                        : <p className="text-xs text-slate-400">No locked facts yet.</p>}
+                        : <p className="text-xs text-slate-800">No locked facts yet.</p>}
                     </div>
                   </div>
                 </div>
@@ -478,7 +478,7 @@ export function PracticeArenaPage() {
               <div className="flex items-center justify-between">
                 <SectionLabel>Opening Argument — Student Advocate</SectionLabel>
                 {openingResponse && (
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-slate-800">
                     Round {Math.max(1, safeNumber(openingResponse.round_number ?? openingResponse.current_round, 1))}
                     {openingFlags.length ? ` · ⚠ ${openingFlags.join(', ')}` : ''}
                   </span>
@@ -490,7 +490,7 @@ export function PracticeArenaPage() {
                 onChange={e => setOpeningArgument(e.target.value)}
                 rows={8}
                 disabled={!openingReady}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 placeholder:text-slate-400 focus:border-orange-300 focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 placeholder:text-slate-800 focus:border-orange-300 focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder={openingReady
                   ? 'Frame the issue, state the rule, anchor every point to the locked facts.'
                   : 'Generate the premise first.'}
@@ -502,7 +502,7 @@ export function PracticeArenaPage() {
                   className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50">
                   {submittingOpening ? 'Submitting…' : generatingOpposing ? 'Generating opposing response…' : 'Submit Opening'}
                 </button>
-                <span className="text-xs text-slate-400">{formatNumber(openingArgument.length)} chars</span>
+                <span className="text-xs text-slate-800">{formatNumber(openingArgument.length)} chars</span>
               </div>
             </section>
 
@@ -531,7 +531,7 @@ export function PracticeArenaPage() {
                       {typedOpposing || safeString(opposingResponse.content, '')}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-slate-800">
                     <span>{opposingTimestamp ? `Generated ${formatDateTime(opposingTimestamp)}` : ''}</span>
                     <button onClick={() => void handleGenerateOpposing('manual').catch(() => undefined)}
                       disabled={generatingOpposing}
@@ -554,7 +554,7 @@ export function PracticeArenaPage() {
               <div className="flex items-center justify-between">
                 <SectionLabel>Rebuttal — Student Advocate</SectionLabel>
                 {rebuttalResponse && (
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-slate-800">
                     Round {Math.max(2, safeNumber(rebuttalResponse.round_number ?? rebuttalResponse.current_round, 2))}
                     {rebuttalFlags.length ? ` · ⚠ ${rebuttalFlags.join(', ')}` : ''}
                   </span>
@@ -566,7 +566,7 @@ export function PracticeArenaPage() {
                 onChange={e => setRebuttalArgument(e.target.value)}
                 rows={7}
                 disabled={!rebuttalReady}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 placeholder:text-slate-400 focus:border-orange-300 focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 placeholder:text-slate-800 focus:border-orange-300 focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder={rebuttalReady
                   ? 'Target the objection, preserve the record, respond with discipline.'
                   : 'Awaiting opposing counsel response.'}
@@ -578,7 +578,7 @@ export function PracticeArenaPage() {
                   className="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-800 hover:border-orange-300 hover:bg-orange-50 disabled:opacity-50">
                   {submittingRebuttal ? 'Submitting…' : generatingJudge ? 'Generating evaluation…' : 'Submit Rebuttal'}
                 </button>
-                <span className="text-xs text-slate-400">{formatNumber(rebuttalArgument.length)} chars</span>
+                <span className="text-xs text-slate-800">{formatNumber(rebuttalArgument.length)} chars</span>
               </div>
             </section>
 
@@ -647,7 +647,7 @@ export function PracticeArenaPage() {
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Final Score</p>
                       <p className="mt-0.5 text-4xl font-black text-slate-900">
-                        {Math.round(finalScore)}<span className="text-base font-normal text-slate-400">/100</span>
+                        {Math.round(finalScore)}<span className="text-base font-normal text-slate-800">/100</span>
                       </p>
                     </div>
                     <Badge label="Judgment complete" tone="judgment-complete" />

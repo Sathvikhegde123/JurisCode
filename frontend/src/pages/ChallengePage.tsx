@@ -97,23 +97,6 @@ export function ChallengePage() {
             <p className="text-sm text-slate-600">Enter a premise and an argument to generate a challenge.</p>
           )}
         </GlassCard>
-
-        <GlassCard title="AI analysis" subtitle="Switch through the response, citations, and questions">
-          <TabSwitcher tabs={tabs} active={activeTab} onChange={setActiveTab} />
-          <div className="mt-5 space-y-4">
-            {activeTab === 'Response' ? <p className="text-sm leading-7 text-slate-700">{response ? safeString(response.opposing_response, 'No response returned.') : 'No response yet.'}</p> : null}
-            {activeTab === 'Citations' ? <LegalCitationCard title="Statutory citation section" citations={response?.statutory_citations ?? []} tone="gold" /> : null}
-            {activeTab === 'Questions' ? (
-              <div className="space-y-3">
-                {(response?.socratic_questions ?? []).length ? (response?.socratic_questions ?? []).map((question) => (
-                  <div key={question} className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm leading-7 text-slate-700">
-                    {question}
-                  </div>
-                )) : <p className="text-sm text-slate-600">Socratic questions will appear after the backend responds.</p>}
-              </div>
-            ) : null}
-          </div>
-        </GlassCard>
       </div>
     </div>
   );
