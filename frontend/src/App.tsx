@@ -6,7 +6,7 @@ import { LandingPage } from '@/pages/LandingPage';
 import { LearningHubPage } from '@/pages/LearningHubPage';
 import { ModelsPage } from '@/pages/ModelsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
-import { PracticeArenaPage } from '@/pages/PracticeArenaPage';
+import { PracticeArenaPage } from '@/pages/PracticeArenaWorkflowPage';
 import { SessionsPage } from '@/pages/SessionsPage';
 
 export function App() {

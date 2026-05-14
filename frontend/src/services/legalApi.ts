@@ -1,11 +1,16 @@
-import { api, saveSessionSummary } from './api';
+import { api, loadSessionSummaries, saveSessionSummary } from './api';
 import type {
   ChallengeResponse,
   HealthResponse,
   ModeListResponse,
   ModelsStatusResponse,
+  PracticeJudgeEvaluationResponse,
+  PracticeOpposingResponse,
+  PracticePremiseResponse,
   PracticeArgumentResponse,
+  PracticeSessionResponse,
   PracticeStartResponse,
+  PracticeWorkflowArgumentResponse,
   SessionDetailsResponse,
   TopicListResponse,
 } from '@/types';
@@ -77,6 +82,146 @@ export async function getPremiseTopics() {
 export async function getPremiseModes() {
   const response = await api.get<ModeListResponse>('/premise/modes');
   return response.data.modes ?? [];
+}
+
+function stringifyPremise(premise: unknown) {
+  if (typeof premise === 'string') {
+    return premise;
+  }
+
+  if (!premise || typeof premise !== 'object') {
+    return 'Premise generated.';
+  }
+
+  const record = premise as Record<string, unknown>;
+  return safeString(
+    record.summary ?? record.description ?? record.text ?? record.narrative,
+    JSON.stringify(record, null, 2),
+  );
+}
+
+function saveWorkflowSummary(payload: {
+  session_id: string;
+  topic?: string;
+  mode?: string;
+  premise?: unknown;
+  workflowStage?: string;
+  status?: string;
+  latestScore?: number;
+  latestFeedback?: string;
+}) {
+  const existing = loadSessionSummaries().find((session) => session.session_id === payload.session_id);
+
+  saveSessionSummary({
+    session_id: payload.session_id,
+    topic: safeString(payload.topic, existing?.topic ?? 'Practice session'),
+    mode: safeString(payload.mode, existing?.mode ?? 'Practice arena'),
+    premise: stringifyPremise(payload.premise ?? existing?.premise),
+    createdAt: existing?.createdAt ?? new Date().toISOString(),
+    workflowStage: payload.workflowStage ?? existing?.workflowStage,
+    status: payload.status ?? existing?.status,
+    latestScore: payload.latestScore ?? existing?.latestScore,
+    latestFeedback: payload.latestFeedback ?? existing?.latestFeedback,
+  });
+}
+
+export async function createPracticeSession(payload: { topic?: string; mode?: string; randomize?: boolean }) {
+  const response = await api.post<PracticeSessionResponse>('/api/v1/sessions', payload);
+  const data = response.data;
+  const record = data as Record<string, unknown>;
+  const sessionId = safeString(data.session_id ?? record.id, '');
+  if (!sessionId) {
+    throw new Error('Session creation failed: backend did not return a session_id.');
+  }
+  const topic = safeString(data.topic, payload.topic ?? 'Courtroom practice');
+  const mode = safeString(data.mode, payload.mode ?? 'Practice arena');
+  const workflowStage = safeString(data.workflow_stage, 'session-created');
+  const status = safeString(data.session_status ?? record.status, 'active');
+
+  saveWorkflowSummary({
+    session_id: sessionId,
+    topic,
+    mode,
+    workflowStage,
+    status,
+    premise: 'Session initialized. Generate the premise to continue.',
+  });
+
+  return {
+    ...data,
+    session_id: sessionId,
+    topic,
+    mode,
+    workflow_stage: workflowStage,
+    session_status: status,
+  };
+}
+
+export async function generatePracticePremise(payload: { sessionId: string; topic: string; mode: string }) {
+  const response = await api.post<PracticePremiseResponse>(`/api/v1/sessions/${payload.sessionId}/premise`, {
+    topic: payload.topic,
+    mode: payload.mode,
+  });
+  const data = response.data;
+  const workflowStage = safeString(data.workflow_stage, 'premise-generated');
+  const record = data as Record<string, unknown>;
+  const status = safeString(data.session_status ?? record.status, 'awaiting-opening');
+
+  saveWorkflowSummary({
+    session_id: safeString(data.session_id, payload.sessionId),
+    premise: data.premise,
+    workflowStage,
+    status,
+    latestFeedback: safeString(data.legal_issue_summary, 'Premise generated.'),
+  });
+
+  return {
+    ...data,
+    session_id: safeString(data.session_id, payload.sessionId),
+    workflow_stage: workflowStage,
+    session_status: status,
+  };
+}
+
+export async function submitOpeningArgument(payload: { sessionId: string; content: string }) {
+  const response = await api.post<PracticeWorkflowArgumentResponse>(`/api/v1/sessions/${payload.sessionId}/opening`, {
+    content: payload.content,
+  });
+
+  return response.data;
+}
+
+export async function generateOpposingCounselResponse(sessionId: string) {
+  const response = await api.post<PracticeOpposingResponse>(`/api/v1/sessions/${sessionId}/opposing`, {});
+  return response.data;
+}
+
+export async function submitRebuttalArgument(payload: { sessionId: string; content: string }) {
+  const response = await api.post<PracticeWorkflowArgumentResponse>(`/api/v1/sessions/${payload.sessionId}/rebuttal`, {
+    content: payload.content,
+  });
+
+  return response.data;
+}
+
+export async function generateJudgeEvaluation(sessionId: string) {
+  const response = await api.post<PracticeJudgeEvaluationResponse>(`/api/v1/sessions/${sessionId}/judge`, {});
+  const data = response.data;
+
+  saveWorkflowSummary({
+    session_id: safeString(data.session_id, sessionId),
+    premise: 'Judge evaluation completed.',
+    workflowStage: safeString(data.workflow_stage, 'judgment-complete'),
+    status: safeString(data.session_status, 'judgment-complete'),
+    latestScore: clamp(safeNumber(data.final_score, 0), 0, 100),
+    latestFeedback: safeString(data.educational_feedback, 'Final evaluation complete.'),
+  });
+
+  return {
+    ...data,
+    workflow_stage: safeString(data.workflow_stage, 'judgment-complete'),
+    session_status: safeString(data.session_status, 'judgment-complete'),
+  };
 }
 
 export async function startPractice(payload: { topic?: string; mode?: string; randomize?: boolean }) {

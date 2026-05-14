@@ -66,7 +66,7 @@ class Settings:
     OPPOSING_COUNSEL_GGUF_PATH: str = _resolve_path(
         os.getenv("OPPOSING_COUNSEL_GGUF_PATH", "../models/opposing_counsel_Q4_K_M.gguf")
     )
-    GGUF_N_CTX: int = _get_int("GGUF_N_CTX", 1024)
+    GGUF_N_CTX: int = _get_int("GGUF_N_CTX", 4096)
     GGUF_N_GPU_LAYERS: int = _get_int("GGUF_N_GPU_LAYERS", -1)
     USE_4BIT: bool = _get_bool("USE_4BIT", False)
     DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"

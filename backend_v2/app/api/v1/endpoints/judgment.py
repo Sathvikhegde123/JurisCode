@@ -41,7 +41,10 @@ async def judge_evaluation(
 
     # Pre-emptively load premise model for the next session (as per v2 spec)
     settings = get_settings()
-    await mm.load_model("premise", settings.resolved_premise_path)
+    try:
+        await mm.load_model("premise", settings.resolved_premise_path)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[Judge] Premise model preload failed: {exc}")
 
     return {
         "session_id": session_id,

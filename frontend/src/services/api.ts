@@ -38,6 +38,8 @@ export type SessionSummary = {
   mode: string;
   premise: string;
   createdAt: string;
+  workflowStage?: string;
+  status?: string;
   latestScore?: number;
   latestFeedback?: string;
 };

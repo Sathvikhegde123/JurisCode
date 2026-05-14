@@ -62,7 +62,7 @@ class ModelManager:
     async def generate_chat(
         self,
         messages: list,
-        max_tokens: int = 1024,
+        max_tokens: int = 4096,
         temperature: float = 0.7,
         stop: Optional[list] = None,
         **kwargs: Any
