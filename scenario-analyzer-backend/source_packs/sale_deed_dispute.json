@@ -1,0 +1,96 @@
+{
+  "issue_type": "sale_deed_dispute",
+  "display_name": "Registered Sale Deed / Ownership Transfer Dispute",
+  "domain": "property_law",
+  "source_grounding_level": "curated_official_statutory_summary",
+  "source_pack_version": "v1",
+  "official_sources": [
+    {
+      "act_name": "Transfer of Property Act, 1882",
+      "section_reference": "Sale/transfer of immovable property provisions; exact section to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for transfer of immovable property and sale-related issues.",
+      "verified": false
+    },
+    {
+      "act_name": "Registration Act, 1908",
+      "section_reference": "Registration of documents; exact section to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for registered sale deed, registration procedure, and document-registration disputes.",
+      "verified": false
+    },
+    {
+      "act_name": "Specific Relief Act, 1963",
+      "section_reference": "Injunction/specific relief provisions where cancellation, injunction, or specific relief is requested; exact section to be verified",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful when the dispute involves injunction, cancellation, or specific relief.",
+      "verified": false
+    }
+  ],
+  "plain_rule_summary": [
+    "A registered sale deed is an important ownership document, but disputes may still arise about vendor title, fraud, impersonation, consideration, boundaries, possession, or prior rights.",
+    "The seller generally cannot transfer better title than they actually have, so vendor title is an important fact.",
+    "Registration supports authenticity and legal formality, but does not automatically remove all factual disputes such as forgery, fraud, prior sale, or lack of authority.",
+    "Possession, payment, property description, boundaries, and mutation records may all become relevant."
+  ],
+  "important_documents": [
+    "registered sale deed",
+    "previous title deed / mother deed",
+    "encumbrance certificate",
+    "property tax receipts",
+    "mutation/khata/patta/RTC records",
+    "possession certificate or possession proof",
+    "identity documents used during registration",
+    "payment proof",
+    "survey sketch / property schedule"
+  ],
+  "common_missing_facts": [
+    "Who executed the sale deed?",
+    "Did the seller have clear title?",
+    "Was consideration/payment made and recorded?",
+    "Is the property description or boundary disputed?",
+    "Who is currently in possession?",
+    "Was mutation completed after the sale?",
+    "Is there an allegation of fraud, impersonation, forged signature, or prior sale?",
+    "Are prior title documents available?"
+  ],
+  "possible_rights": [
+    "Possible right to rely on a valid registered sale deed.",
+    "Possible right to challenge a defective or fraudulent sale deed.",
+    "Possible right to seek protection of possession if lawfully held.",
+    "Possible right to seek correction of records or civil relief depending on facts."
+  ],
+  "possible_remedies": [
+    "Verify the chain of title before and after the sale deed.",
+    "Collect registered sale deed, prior title documents, payment proof, and possession evidence.",
+    "Check encumbrance and mutation records.",
+    "If fraud or forgery is alleged, consult a lawyer immediately and preserve registration documents.",
+    "If possession is threatened, seek urgent local legal advice."
+  ],
+  "possible_outcomes": [
+    "If the sale deed is valid and vendor title is established, the buyer's claim may become stronger.",
+    "If the seller lacked title or authority, the buyer's claim may face serious challenge.",
+    "If fraud, forgery, or impersonation is alleged, document authenticity becomes central.",
+    "If possession is disputed, interim protection or possession evidence may become important."
+  ],
+  "safety_triggers": [
+    "forged",
+    "fraud",
+    "impersonation",
+    "fake",
+    "force",
+    "possession taken",
+    "threat",
+    "police",
+    "court notice"
+  ],
+  "response_guidance": [
+    "Do not say registration alone conclusively proves ownership.",
+    "Ask about vendor title, prior documents, possession, payment, and mutation.",
+    "Warn urgently if forgery, impersonation, or dispossession is alleged.",
+    "Keep explanation citizen-friendly."
+  ]
+}

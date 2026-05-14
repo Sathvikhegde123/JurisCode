@@ -13,6 +13,7 @@ const bottomNavItems = [
   { to: '/practice', label: 'Practice' },
   { to: '/challenge', label: 'Challenge' },
   { to: '/learn', label: 'Learn' },
+  { to: '/scenario-analyzer', label: 'Scenario' },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -27,7 +28,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-amber-200/70 bg-white px-3 py-2 backdrop-blur-xl xl:hidden" aria-label="Bottom navigation">
-        <div className="mx-auto grid max-w-3xl grid-cols-4 gap-2">
+        <div className="mx-auto grid max-w-3xl grid-cols-5 gap-2">
           {bottomNavItems.map((item) => (
             <NavLink
               key={item.to}

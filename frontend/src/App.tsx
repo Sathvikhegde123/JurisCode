@@ -7,6 +7,7 @@ import { LearningHubPage } from '@/pages/LearningHubPage';
 import { ModelsPage } from '@/pages/ModelsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { PracticeArenaPage } from '@/pages/PracticeArenaWorkflowPage';
+import { ScenarioAnalyzerPage } from '@/pages/ScenarioAnalyzerPage';
 import { SessionsPage } from '@/pages/SessionsPage';
 
 export function App() {
@@ -20,6 +21,7 @@ export function App() {
         <Route path="/sessions" element={<SessionsPage />} />
         <Route path="/models" element={<ModelsPage />} />
         <Route path="/learn" element={<LearningHubPage />} />
+        <Route path="/scenario-analyzer" element={<ScenarioAnalyzerPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

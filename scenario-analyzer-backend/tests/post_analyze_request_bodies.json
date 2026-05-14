@@ -1,0 +1,153 @@
+{
+  "endpoint": "POST /api/scenario/analyze",
+  "content_type": "application/json",
+  "body_schema": {
+    "scenario": "string, min length 10",
+    "user_context": {
+      "state": "string, optional, default Unknown",
+      "language": "string, optional, default English"
+    }
+  },
+  "note": "Send only each test case's 'body' object as the POST JSON. user_context is optional (see id 18_omit_user_context).",
+  "test_cases": [
+    {
+      "id": "01_tenant_lockout",
+      "body": {
+        "scenario": "My landlord changed the locks while I was at work and put my belongings outside. The rental agreement still has six months left.",
+        "user_context": { "state": "Karnataka", "language": "English" }
+      }
+    },
+    {
+      "id": "02_tenant_rent_receipts",
+      "body": {
+        "scenario": "The tenant has not paid rent for three months and I want to know how to give notice before asking them to vacate the shop.",
+        "user_context": { "state": "Maharashtra", "language": "English" }
+      }
+    },
+    {
+      "id": "03_tenant_oral_lease",
+      "body": {
+        "scenario": "We had only an oral rental agreement for two years and now the landlord says I must leave in one week without any written notice.",
+        "user_context": { "state": "Delhi", "language": "English" }
+      }
+    },
+    {
+      "id": "04_mutation_after_death",
+      "body": {
+        "scenario": "After my father died, my brother got the mutation records changed to only his name without telling the other legal heirs.",
+        "user_context": { "state": "Telangana", "language": "English" }
+      }
+    },
+    {
+      "id": "05_khata_patta_dispute",
+      "body": {
+        "scenario": "The municipal khata is in my cousin's name but our family sale deed shows my father as owner. I need to understand what documents matter.",
+        "user_context": { "state": "Karnataka", "language": "English" }
+      }
+    },
+    {
+      "id": "06_rtc_revenue_record",
+      "body": {
+        "scenario": "The village revenue RTC record shows a different extent than what our registered partition deed describes for the same survey number.",
+        "user_context": { "state": "Tamil Nadu", "language": "English" }
+      }
+    },
+    {
+      "id": "07_sale_deed_chain",
+      "body": {
+        "scenario": "I purchased agricultural land through a registered sale deed but the seller's brother claims the mother deed was forged and disputes my title.",
+        "user_context": { "state": "Punjab", "language": "English" }
+      }
+    },
+    {
+      "id": "08_sale_boundary",
+      "body": {
+        "scenario": "The registered sale deed boundary does not match the actual possession on site and the neighbour says part of the plot belongs to him.",
+        "user_context": { "state": "Gujarat", "language": "English" }
+      }
+    },
+    {
+      "id": "09_registration_delay",
+      "body": {
+        "scenario": "I paid full consideration but the seller is refusing to come to the sub-registrar office to complete registration of the sale deed.",
+        "user_context": { "state": "Rajasthan", "language": "English" }
+      }
+    },
+    {
+      "id": "10_rera_possession_delay",
+      "body": {
+        "scenario": "The builder has delayed handing over possession of my apartment by more than two years beyond the date promised in the builder-buyer agreement.",
+        "user_context": { "state": "Maharashtra", "language": "English" }
+      }
+    },
+    {
+      "id": "11_rera_refund",
+      "body": {
+        "scenario": "I paid almost eighty percent of the flat cost but the project seems abandoned and the builder is not responding about refund or completion.",
+        "user_context": { "state": "Uttar Pradesh", "language": "English" }
+      }
+    },
+    {
+      "id": "12_rera_oc_status",
+      "body": {
+        "scenario": "The developer is asking for final payment but occupancy certificate status is unclear and other allottees are also worried about delay.",
+        "user_context": { "state": "Haryana", "language": "English" }
+      }
+    },
+    {
+      "id": "13_partition_ancestral",
+      "body": {
+        "scenario": "My uncle sold ancestral family agricultural land without informing my mother and her sisters who were also legal heirs after grandfather died.",
+        "user_context": { "state": "Bihar", "language": "English" }
+      }
+    },
+    {
+      "id": "14_will_vs_intestate",
+      "body": {
+        "scenario": "My father left a handwritten will but one sibling says it is not valid and claims share as if he died without any will for the house.",
+        "user_context": { "state": "West Bengal", "language": "English" }
+      }
+    },
+    {
+      "id": "15_co_sharer_possession",
+      "body": {
+        "scenario": "We are four co-sharers of inherited property but one brother has taken exclusive possession of the entire building and changed the electricity bills.",
+        "user_context": { "state": "Odisha", "language": "English" }
+      }
+    },
+    {
+      "id": "16_general_property_no_keyword",
+      "body": {
+        "scenario": "There is a serious disagreement with my relative about who should control access to the family courtyard and shared parking area near our home.",
+        "user_context": { "state": "Unknown", "language": "English" }
+      }
+    },
+    {
+      "id": "17_minimal_user_context",
+      "body": {
+        "scenario": "Police visited regarding a property boundary fight and someone mentioned a court notice but I am not sure what steps I should take next.",
+        "user_context": { "state": "Kerala", "language": "English" }
+      }
+    },
+    {
+      "id": "18_omit_user_context",
+      "body": {
+        "scenario": "My landlord is forcing me to leave before the rental agreement ends and I do not know what documents I should collect to protect myself."
+      }
+    },
+    {
+      "id": "19_language_hindi_preference",
+      "body": {
+        "scenario": "Mere landlord ne agreement se pehle khali karne ke liye dabaav banaya hai aur ab electricity bill bhi mere naam se hata diya gaya hai.",
+        "user_context": { "state": "Madhya Pradesh", "language": "Hindi" }
+      }
+    },
+    {
+      "id": "20_commercial_tenant",
+      "body": {
+        "scenario": "I run a small business from a rented commercial shop and the owner wants to increase rent suddenly and threatens lockout if I refuse.",
+        "user_context": { "state": "Goa", "language": "English" }
+      }
+    }
+  ]
+}

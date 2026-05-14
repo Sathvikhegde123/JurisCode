@@ -1,0 +1,86 @@
+{
+  "issue_type": "tenant_eviction",
+  "display_name": "Tenant Eviction / Premature Vacating Pressure",
+  "domain": "property_law",
+  "source_grounding_level": "curated_official_statutory_summary",
+  "source_pack_version": "v1",
+  "official_sources": [
+    {
+      "act_name": "Transfer of Property Act, 1882",
+      "section_reference": "Lease-related provisions; exact sections to be verified for the specific state and facts",
+      "source_type": "central_act",
+      "source_origin": "India Code",
+      "relevance": "Useful for lease, possession, notice, termination, and landlord-tenant context.",
+      "verified": false
+    },
+    {
+      "act_name": "State-specific Rent Control / Tenancy Law",
+      "section_reference": "To be identified based on state",
+      "source_type": "state_law",
+      "source_origin": "State law / India Code where available",
+      "relevance": "Tenant protection, eviction grounds, rent-control rules, and notice requirements may vary by state.",
+      "verified": false
+    }
+  ],
+  "plain_rule_summary": [
+    "A tenant-landlord issue usually depends on the rental agreement, possession status, rent payment, notice, and applicable state law.",
+    "If the agreement period is still active, the termination clause and notice terms become important.",
+    "Forceful eviction, lockout, threats, or removal of belongings should be treated as urgent legal-risk facts.",
+    "The system should not conclude whether eviction is valid; it should explain what facts and documents matter."
+  ],
+  "important_documents": [
+    "rental agreement or lease deed",
+    "rent receipts",
+    "bank transfer proof",
+    "written notice from landlord",
+    "messages, emails, or WhatsApp chats",
+    "electricity/water bills showing occupation",
+    "photos/videos of lockout or force if any"
+  ],
+  "common_missing_facts": [
+    "Is the rental agreement written or oral?",
+    "What is the start date and end date of the agreement?",
+    "Has the landlord given written notice?",
+    "Is there any unpaid rent or breach alleged?",
+    "Has there been threat, force, lockout, police pressure, or removal of goods?",
+    "Which city/state is the property located in?",
+    "Is the property residential or commercial?"
+  ],
+  "possible_rights": [
+    "Possible right to rely on the rental agreement terms.",
+    "Possible right to receive proper notice where required.",
+    "Possible protection against forceful dispossession or illegal lockout.",
+    "Possible right to preserve possession until lawful procedure is followed, depending on facts and local law."
+  ],
+  "possible_remedies": [
+    "Review the termination and notice clauses in the rental agreement.",
+    "Preserve rent receipts, agreement copy, notices, messages, and payment records.",
+    "Ask the landlord to communicate in writing.",
+    "Avoid verbal-only settlement if there is pressure or threat.",
+    "Consult a qualified local lawyer urgently if there is force, lockout, police involvement, or immediate dispossession risk."
+  ],
+  "possible_outcomes": [
+    "If the landlord has not followed notice or agreed termination terms, the eviction attempt may be contestable.",
+    "If there is rent default or breach, the landlord may have stronger grounds depending on law and facts.",
+    "If force or lockout is used, urgent legal help may be required.",
+    "The outcome depends on agreement terms, local tenancy law, evidence, and possession facts."
+  ],
+  "safety_triggers": [
+    "force",
+    "threat",
+    "lockout",
+    "police",
+    "FIR",
+    "eviction",
+    "vacate immediately",
+    "threw my goods",
+    "sealed",
+    "court notice"
+  ],
+  "response_guidance": [
+    "Do not say the tenant will win or landlord will lose.",
+    "Do not give a final legal opinion.",
+    "Ask missing questions about notice, rent default, agreement terms, and state.",
+    "Trigger lawyer warning if force, lockout, threat, court notice, or police is involved."
+  ]
+}
