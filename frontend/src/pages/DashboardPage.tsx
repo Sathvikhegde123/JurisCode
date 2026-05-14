@@ -59,8 +59,7 @@ export function DashboardPage() {
                 <TopicBadge label={`${completed} completed sessions`} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:max-w-sm">
-              <DashboardStatCard title="Average score" value={formatPercent(averageScore)} caption="Across your recent sessions" tone="emerald" />
+            <div className="grid grid-cols-1 gap-3 sm:max-w-sm">
               <DashboardStatCard title="Progress" value={`${completed}`} caption="Practice rounds finished" tone="gold" />
             </div>
           </div>
