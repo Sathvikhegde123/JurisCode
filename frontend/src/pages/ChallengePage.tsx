@@ -40,7 +40,7 @@ export function ChallengePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <GlassCard title="Challenge my argument" subtitle="Pressure-test a premise and your courtroom position">
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
           <label className="block text-sm text-slate-700">

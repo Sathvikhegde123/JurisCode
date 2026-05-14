@@ -18,7 +18,7 @@ export function ProgressRing({ value, label, size = 132 }: ProgressRingProps) {
       >
         <div className="flex h-[calc(100%-16px)] w-[calc(100%-16px)] flex-col items-center justify-center rounded-full border border-amber-200/70 bg-white">
           <span className="text-3xl font-semibold text-slate-900">{formatPercent(safeValue)}</span>
-          <span className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-600">{label}</span>
+          <span className="mt-1 text-[8px] uppercase tracking-[0.3em] text-slate-600">{label}</span>
         </div>
       </div>
     </div>

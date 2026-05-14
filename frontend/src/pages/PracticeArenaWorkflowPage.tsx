@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { GlassCard } from '@/components/common/GlassCard';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { ScoreMeter } from '@/components/common/ScoreMeter';
 import { useToast } from '@/contexts/ToastContext';
@@ -23,834 +22,716 @@ import type {
 import { classNames } from '@/utils/classNames';
 import { clamp, formatDateTime, formatNumber, formatPercent, safeNumber, safeString } from '@/utils/format';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 type SessionStatus = 'active' | 'awaiting-opening' | 'opposing-response' | 'rebuttal' | 'judgment-complete';
 
-type WorkflowStep = {
-  label: string;
-  description: string;
-};
+type WorkflowStep = { label: string; description: string };
 
 const workflowSteps: WorkflowStep[] = [
-  { label: 'Create Session', description: 'Open a new practice arena session.' },
+  { label: 'Create Session',   description: 'Open a new practice arena session.' },
   { label: 'Generate Premise', description: 'Lock the facts and legal issue.' },
   { label: 'Opening Argument', description: 'Submit the student advocate draft.' },
   { label: 'Opposing Counsel', description: 'Render the AI challenge response.' },
-  { label: 'Rebuttal', description: 'Draft the follow-up response.' },
+  { label: 'Rebuttal',         description: 'Draft the follow-up response.' },
   { label: 'Judge Evaluation', description: 'Review the final assessment.' },
 ];
 
-const statusToneClasses: Record<SessionStatus, string> = {
-  active: 'border-electric/30 bg-electric/10 text-electric',
-  'awaiting-opening': 'border-mutedGold/30 bg-mutedGold/10 text-mutedGold',
-  'opposing-response': 'border-amber-300/70 bg-amber-100/70 text-amber-800',
-  rebuttal: 'border-emeraldGlow/30 bg-emeraldGlow/10 text-emeraldGlow',
-  'judgment-complete': 'border-mutedGold/40 bg-mutedGold/15 text-mutedGold',
+const statusTone: Record<SessionStatus, string> = {
+  'active':            'border-blue-200    bg-blue-50    text-blue-700',
+  'awaiting-opening':  'border-amber-300   bg-amber-50   text-amber-700',
+  'opposing-response': 'border-orange-300  bg-orange-50  text-orange-700',
+  'rebuttal':          'border-emerald-300 bg-emerald-50 text-emerald-700',
+  'judgment-complete': 'border-amber-400   bg-amber-100  text-amber-800',
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return Boolean(v) && typeof v === 'object' && !Array.isArray(v);
 }
 
 function normalizeStatus(raw: unknown, fallback: SessionStatus): SessionStatus {
-  const value = safeString(raw, fallback).toLowerCase();
-  if (value.includes('awaiting-opening')) return 'awaiting-opening';
-  if (value.includes('opposing')) return 'opposing-response';
-  if (value.includes('rebuttal')) return 'rebuttal';
-  if (value.includes('judge') || value.includes('complete')) return 'judgment-complete';
-  if (value.includes('active') || value.includes('session-created')) return 'active';
+  const v = safeString(raw, fallback).toLowerCase();
+  if (v.includes('awaiting-opening'))              return 'awaiting-opening';
+  if (v.includes('opposing'))                      return 'opposing-response';
+  if (v.includes('rebuttal'))                      return 'rebuttal';
+  if (v.includes('judge') || v.includes('complete')) return 'judgment-complete';
+  if (v.includes('active') || v.includes('session-created')) return 'active';
   return fallback;
 }
 
-function StatusBadge({ label, tone }: { label: string; tone: SessionStatus | 'neutral' }) {
-  const className =
-    tone === 'neutral'
-      ? 'border-amber-200/70 bg-white text-slate-700'
-      : statusToneClasses[tone];
+// ─── Shared atoms ─────────────────────────────────────────────────────────────
+
+function Badge({ label, tone }: { label: string; tone: SessionStatus | 'neutral' }) {
   return (
-    <span className={classNames('inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]', className)}>
+    <span className={classNames(
+      'inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest',
+      tone === 'neutral' ? 'border-slate-200 bg-white text-slate-500' : statusTone[tone],
+    )}>
       {label}
     </span>
   );
 }
 
-function MetricTile({ label, value, helper }: { label: string; value: string; helper?: string }) {
+function SectionLabel({ children }: { children: ReactNode }) {
+  return <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">{children}</p>;
+}
+
+function Divider() {
+  return <hr className="border-slate-100" />;
+}
+
+function Empty({ text }: { text: string }) {
+  return <p className="text-sm italic text-slate-400">{text}</p>;
+}
+
+function JSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
-      <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">{label}</p>
-      <p className="mt-2 break-words text-sm font-semibold text-slate-900">{value}</p>
-      {helper ? <p className="mt-1 text-xs leading-6 text-slate-600">{helper}</p> : null}
+    <div className="space-y-2">
+      <SectionLabel>{title}</SectionLabel>
+      {children}
     </div>
   );
 }
 
-function StageStepper({ activeIndex }: { activeIndex: number }) {
+// ─── Step progress bar ────────────────────────────────────────────────────────
+
+function StepBar({ activeIndex }: { activeIndex: number }) {
   return (
-    <div className="rounded-3xl border border-amber-200/70 bg-white p-4 shadow-sm backdrop-blur-xl">
-      <div className="grid gap-3 grid-cols-3 xl:grid-cols-6">
-        {workflowSteps.map((step, index) => {
-          const completed = index < activeIndex;
-          const current = index === activeIndex;
-          return (
-            <div
-              key={step.label}
-              className={classNames(
-                'rounded-2xl border p-4 transition',
-                completed
-                  ? 'border-emeraldGlow/30 bg-emeraldGlow/10'
-                  : current
-                    ? 'border-electric/40 bg-electric/15'
-                    : 'border-amber-200/70 bg-white'
-              )}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className={classNames('text-xs uppercase tracking-[0.26em]', completed ? 'text-emeraldGlow' : current ? 'text-electric' : 'text-slate-500')}>
-                  Step {index + 1}
-                </span>
-                <span className={classNames('h-2.5 w-2.5 rounded-full', completed ? 'bg-emeraldGlow' : current ? 'bg-electric' : 'bg-slate-600')} aria-hidden="true" />
+    <div className="flex items-center">
+      {workflowSteps.map((step, i) => {
+        const done    = i < activeIndex;
+        const current = i === activeIndex;
+        return (
+          <div key={step.label} className="flex flex-1 items-center">
+            <div className="flex flex-col items-center gap-1">
+              <div className={classNames(
+                'flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold transition-all',
+                done    ? 'border-emerald-400 bg-emerald-400 text-white'
+                : current ? 'border-orange-500 bg-orange-500 text-white'
+                :           'border-slate-200  bg-white       text-slate-400',
+              )}>
+                {done ? '✓' : i + 1}
               </div>
-              <p className="mt-3 text-sm font-semibold text-slate-900">{step.label}</p>
-              <p className="mt-1 text-xs leading-6 text-slate-600">{step.description}</p>
+              <span className={classNames(
+                'hidden text-[9px] font-semibold uppercase tracking-wider xl:block',
+                done ? 'text-emerald-500' : current ? 'text-orange-500' : 'text-slate-400',
+              )}>
+                {step.label}
+              </span>
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function CircularScoreMeter({ score, label }: { score: number; label: string }) {
-  const value = clamp(score, 0, 100);
-  const degrees = value * 3.6;
-  return (
-    <div className="rounded-3xl border border-amber-200/70 bg-white p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{label}</p>
-        <p className="text-sm font-semibold text-slate-900">{formatPercent(value)}</p>
-      </div>
-      <div className="flex items-center justify-center">
-        <div
-          className="relative flex h-32 w-32 items-center justify-center rounded-full"
-          style={{ background: `conic-gradient(#f5c45b 0deg ${degrees}deg, rgba(148,163,184,0.25) ${degrees}deg 360deg)` }}
-        >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-amber-200/70 bg-white text-center">
-            <div>
-              <p className="text-3xl font-semibold text-slate-900">{Math.round(value)}</p>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">out of 100</p>
-            </div>
+            {i < workflowSteps.length - 1 && (
+              <div className={classNames('h-0.5 flex-1 transition-all', done ? 'bg-emerald-300' : 'bg-slate-200')} />
+            )}
           </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Score ring ───────────────────────────────────────────────────────────────
+
+function ScoreRing({ score, label }: { score: number; label: string }) {
+  const v   = clamp(score, 0, 100);
+  const deg = v * 3.6;
+  return (
+    <div className="flex items-center gap-4">
+      <div
+        className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full"
+        style={{ background: `conic-gradient(#f59e0b 0deg ${deg}deg, #f3f4f6 ${deg}deg 360deg)` }}
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
+          <span className="text-sm font-bold text-slate-900">{Math.round(v)}</span>
         </div>
+      </div>
+      <div>
+        <p className="text-xs uppercase tracking-wider text-slate-400">{label}</p>
+        <p className="text-lg font-bold text-slate-900">{formatPercent(v)}</p>
       </div>
     </div>
   );
 }
 
-function EmptyPanel({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="rounded-3xl border border-dashed border-amber-200/70 bg-white p-5 text-sm text-slate-600">
-      <p className="text-sm font-semibold text-slate-900">{title}</p>
-      <p className="mt-2 leading-7">{description}</p>
-    </div>
-  );
-}
-
-function JudgeCard({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="rounded-3xl border border-amber-200/70 bg-white p-5 shadow-sm">
-      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{title}</p>
-      <div className="mt-4">{children}</div>
-    </div>
-  );
-}
-
-function ScoreRibbon({ score }: { score: number }) {
-  const value = clamp(score, 0, 100);
-  return (
-    <div className="rounded-3xl border border-mutedGold/30 bg-gradient-to-r from-mutedGold/20 via-mutedGold/10 to-transparent p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-mutedGold">Final Score</p>
-          <p className="mt-2 text-4xl font-semibold text-slate-900">{Math.round(value)}</p>
-        </div>
-        <div className="text-sm text-slate-700">
-          <p>Score out of 100</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.28em] text-slate-500">Session judgment complete</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function PracticeArenaPage() {
   const { notify } = useToast();
-  const [topics, setTopics] = useState<string[]>([]);
-  const [modes, setModes] = useState<string[]>([]);
-  const [loadingMeta, setLoadingMeta] = useState(true);
+
+  const [topics, setTopics]               = useState<string[]>([]);
+  const [modes, setModes]                 = useState<string[]>([]);
+  const [loadingMeta, setLoadingMeta]     = useState(true);
   const [selectedTopic, setSelectedTopic] = useState('');
-  const [selectedMode, setSelectedMode] = useState('');
-  const [randomize, setRandomize] = useState(true);
+  const [selectedMode, setSelectedMode]   = useState('');
+  const [randomize, setRandomize]         = useState(true);
 
-  const [sessionId, setSessionId] = useState('');
-  const [workflowStage, setWorkflowStage] = useState('Create Session');
-  const [sessionStatus, setSessionStatus] = useState<SessionStatus>('active');
-  const [currentRound, setCurrentRound] = useState(0);
+  const [sessionId, setSessionId]           = useState('');
+  const [workflowStage, setWorkflowStage]   = useState('Create Session');
+  const [sessionStatus, setSessionStatus]   = useState<SessionStatus>('active');
+  const [currentRound, setCurrentRound]     = useState(0);
 
-  const [premiseResponse, setPremiseResponse] = useState<PracticePremiseResponse | null>(null);
-  const [openingArgument, setOpeningArgument] = useState('');
-  const [openingResponse, setOpeningResponse] = useState<PracticeWorkflowArgumentResponse | null>(null);
-  const [opposingResponse, setOpposingResponse] = useState<PracticeOpposingResponse | null>(null);
-  const [typedOpposing, setTypedOpposing] = useState('');
+  const [premiseResponse, setPremiseResponse]     = useState<PracticePremiseResponse | null>(null);
+  const [openingArgument, setOpeningArgument]     = useState('');
+  const [openingResponse, setOpeningResponse]     = useState<PracticeWorkflowArgumentResponse | null>(null);
+  const [opposingResponse, setOpposingResponse]   = useState<PracticeOpposingResponse | null>(null);
+  const [typedOpposing, setTypedOpposing]         = useState('');
   const [opposingTimestamp, setOpposingTimestamp] = useState('');
-  const [rebuttalArgument, setRebuttalArgument] = useState('');
-  const [rebuttalResponse, setRebuttalResponse] = useState<PracticeWorkflowArgumentResponse | null>(null);
-  const [judgeEvaluation, setJudgeEvaluation] = useState<PracticeJudgeEvaluationResponse | null>(null);
+  const [rebuttalArgument, setRebuttalArgument]   = useState('');
+  const [rebuttalResponse, setRebuttalResponse]   = useState<PracticeWorkflowArgumentResponse | null>(null);
+  const [judgeEvaluation, setJudgeEvaluation]     = useState<PracticeJudgeEvaluationResponse | null>(null);
 
-  const [creatingSession, setCreatingSession] = useState(false);
-  const [generatingPremise, setGeneratingPremise] = useState(false);
-  const [submittingOpening, setSubmittingOpening] = useState(false);
+  const [creatingSession, setCreatingSession]       = useState(false);
+  const [generatingPremise, setGeneratingPremise]   = useState(false);
+  const [submittingOpening, setSubmittingOpening]   = useState(false);
   const [generatingOpposing, setGeneratingOpposing] = useState(false);
   const [submittingRebuttal, setSubmittingRebuttal] = useState(false);
-  const [generatingJudge, setGeneratingJudge] = useState(false);
+  const [generatingJudge, setGeneratingJudge]       = useState(false);
 
   useEffect(() => {
     Promise.all([getPremiseTopics(), getPremiseModes()])
-      .then(([loadedTopics, loadedModes]) => {
-        setTopics(loadedTopics);
-        setModes(loadedModes);
-        setSelectedTopic(loadedTopics[0] ?? '');
-        setSelectedMode(loadedModes[0] ?? '');
+      .then(([t, m]) => {
+        setTopics(t); setModes(m);
+        setSelectedTopic(t[0] ?? ''); setSelectedMode(m[0] ?? '');
       })
-      .catch((error) => {
-        notify({ variant: 'error', title: 'Could not load practice options', message: getApiError(error).message });
-      })
+      .catch(err => notify({ variant: 'error', title: 'Could not load options', message: getApiError(err).message }))
       .finally(() => setLoadingMeta(false));
   }, [notify]);
 
   useEffect(() => {
     const content = safeString(opposingResponse?.content, '');
-    if (!content) {
-      setTypedOpposing('');
-      setOpposingTimestamp('');
-      return;
-    }
-    let index = 0;
-    setTypedOpposing('');
+    if (!content) { setTypedOpposing(''); setOpposingTimestamp(''); return; }
+    let i = 0; setTypedOpposing('');
     const step = Math.max(1, Math.ceil(content.length / 120));
-    const timer = window.setInterval(() => {
-      index += step;
-      setTypedOpposing(content.slice(0, index));
-      if (index >= content.length) window.clearInterval(timer);
+    const t = window.setInterval(() => {
+      i += step; setTypedOpposing(content.slice(0, i));
+      if (i >= content.length) window.clearInterval(t);
     }, 16);
-    return () => window.clearInterval(timer);
+    return () => window.clearInterval(t);
   }, [opposingResponse]);
 
   const premiseText = useMemo(() => {
-    const premise = premiseResponse?.premise;
-    if (isRecord(premise)) {
-      return safeString(premise.scenario_text, '');
-    }
-    return safeString(premise, '');
+    const p = premiseResponse?.premise;
+    return isRecord(p) ? safeString(p.scenario_text, '') : safeString(p, '');
   }, [premiseResponse]);
   const lockedFacts = premiseResponse?.locked_facts ?? [];
 
   const workflowIndex = useMemo(() => {
-    if (!sessionId) return 0;
-    if (!premiseResponse) return 1;
-    if (!openingResponse) return 2;
+    if (!sessionId)      return 0;
+    if (!premiseResponse)  return 1;
+    if (!openingResponse)  return 2;
     if (!opposingResponse) return 3;
     if (!rebuttalResponse) return 4;
     return 5;
-  }, [openingResponse, opposingResponse, premiseResponse, rebuttalResponse, sessionId]);
+  }, [sessionId, premiseResponse, openingResponse, opposingResponse, rebuttalResponse]);
 
-  const judgeWorkflowStage = safeString(
-    judgeEvaluation?.workflow_stage ?? rebuttalResponse?.workflow_stage ?? opposingResponse?.workflow_stage ?? openingResponse?.workflow_stage ?? premiseResponse?.workflow_stage,
-    workflowSteps[Math.min(workflowIndex, workflowSteps.length - 1)]?.label ?? workflowStage,
-  );
-
-  const liveJudgeCommentary = judgeEvaluation
-    ? safeString(judgeEvaluation.educational_feedback, 'Final evaluation generated.')
-    : workflowIndex === 0
-      ? 'Create the session to establish the courtroom context.'
-      : workflowIndex === 1
-        ? 'Generate the premise to lock the factual record before opening statements.'
-        : workflowIndex === 2
-          ? 'Draft the opening argument with a clean issue-rule-application structure.'
-          : workflowIndex === 3
-            ? 'The opposing counsel response is in flight. Prepare the rebuttal posture.'
-            : workflowIndex === 4
-              ? 'Keep the rebuttal disciplined and tied to the record.'
-              : 'Review the judge evaluation and consolidate the learning points.';
-
-  const burdenReminder = judgeEvaluation
-    ? safeString(judgeEvaluation.burden_of_proof_analysis, 'Burden analysis complete.')
-    : 'Keep the burden of proof explicit, and tie every assertion back to the locked facts.';
-
-  const openingFlags = isRecord(openingResponse?.hallucination_flags)
-    ? Object.entries(openingResponse.hallucination_flags).filter(([, value]) => Boolean(value)).map(([key]) => key)
-    : [];
-  const rebuttalFlags = isRecord(rebuttalResponse?.hallucination_flags)
-    ? Object.entries(rebuttalResponse.hallucination_flags).filter(([, value]) => Boolean(value)).map(([key]) => key)
-    : [];
-
-  const openingReady = Boolean(sessionId && premiseResponse);
-  const rebuttalReady = Boolean(opposingResponse);
-  const opposingSpeech = safeString(opposingResponse?.content, '').trim();
   const judgeSpeech = useMemo(() => {
-    if (!judgeEvaluation) {
-      return '';
-    }
-    const parts = [
-      safeString(judgeEvaluation.burden_of_proof_analysis, ''),
-      safeString(judgeEvaluation.evidentiary_sufficiency, ''),
-      safeString(judgeEvaluation.educational_feedback, ''),
-      safeString(judgeEvaluation.termination_recommendation, ''),
-    ].filter((item) => item.trim().length > 0);
-    return parts.join('\n\n');
+    if (!judgeEvaluation) return '';
+    return [
+      judgeEvaluation.burden_of_proof_analysis,
+      judgeEvaluation.evidentiary_sufficiency,
+      judgeEvaluation.educational_feedback,
+      judgeEvaluation.termination_recommendation,
+    ].filter(Boolean).map(s => safeString(s, '')).join('\n\n');
   }, [judgeEvaluation]);
 
-  const speakText = (text: string) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      return;
-    }
-    const trimmed = text.trim();
-    if (!trimmed) {
-      return;
-    }
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(trimmed));
+  const opposingSpeech = safeString(opposingResponse?.content, '').trim();
+
+  const pickVoice = (voices: SpeechSynthesisVoice[], role: 'judge' | 'opposing') => {
+    const keys = role === 'judge'
+      ? ['male','man','deep','bass','david','mark','george','james','daniel','brian','steve']
+      : ['deep','bass','male','man','david','mark','george','james'];
+    const items = voices.map(v => ({ v, n: `${v.name} ${v.voiceURI}`.toLowerCase() }));
+    return items.find(({ n }) => keys.some(k => n.includes(k)))?.v
+      ?? voices.find(v => v.lang.startsWith('en'))
+      ?? voices[0];
   };
+  const speak = (text: string, role: 'judge' | 'opposing') => {
+    if (!('speechSynthesis' in window) || !text.trim()) return;
+    const u = new SpeechSynthesisUtterance(text.trim());
+    const voice = pickVoice(window.speechSynthesis.getVoices(), role);
+    if (voice) u.voice = voice;
+    u.pitch = role === 'judge' ? 0.6 : 0.7;
+    u.rate  = role === 'judge' ? 0.9 : 0.95;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  };
+  const stopSpeech = () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); };
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleCreateSession = async () => {
     setCreatingSession(true);
     try {
-      const created = await createPracticeSession({ topic: selectedTopic, mode: selectedMode, randomize });
-      setSessionId(safeString(created.session_id, ''));
-      setSelectedTopic(safeString(created.topic, selectedTopic));
-      setSelectedMode(safeString(created.mode, selectedMode));
-      setWorkflowStage(safeString(created.workflow_stage, 'Session created'));
-      setSessionStatus(normalizeStatus(created.session_status, 'active'));
-      setCurrentRound(safeNumber(created.current_round, 0));
-      setPremiseResponse(null);
-      setOpeningArgument('');
-      setOpeningResponse(null);
-      setOpposingResponse(null);
-      setTypedOpposing('');
-      setOpposingTimestamp('');
-      setRebuttalArgument('');
-      setRebuttalResponse(null);
-      setJudgeEvaluation(null);
-      notify({ variant: 'success', title: 'Session created', message: `Session ${safeString(created.session_id, 'pending')} is ready for premise generation.` });
-    } catch (error) {
-      notify({ variant: 'error', title: 'Could not create session', message: getApiError(error).message });
-    } finally {
-      setCreatingSession(false);
-    }
+      const c = await createPracticeSession({ topic: selectedTopic, mode: selectedMode, randomize });
+      setSessionId(safeString(c.session_id, ''));
+      setSelectedTopic(safeString(c.topic, selectedTopic));
+      setSelectedMode(safeString(c.mode, selectedMode));
+      setWorkflowStage(safeString(c.workflow_stage, 'Session created'));
+      setSessionStatus(normalizeStatus(c.session_status, 'active'));
+      setCurrentRound(safeNumber(c.current_round, 0));
+      setPremiseResponse(null); setOpeningArgument(''); setOpeningResponse(null);
+      setOpposingResponse(null); setTypedOpposing(''); setOpposingTimestamp('');
+      setRebuttalArgument(''); setRebuttalResponse(null); setJudgeEvaluation(null);
+      notify({ variant: 'success', title: 'Session created', message: `${safeString(c.session_id, 'pending')} ready.` });
+    } catch (e) {
+      notify({ variant: 'error', title: 'Could not create session', message: getApiError(e).message });
+    } finally { setCreatingSession(false); }
   };
 
   const handleGeneratePremise = async () => {
-    if (!sessionId) {
-      notify({ variant: 'info', title: 'Start a session first', message: 'Create a session before generating the premise.' });
-      return;
-    }
-    if (!selectedTopic || !selectedMode) {
-      notify({ variant: 'info', title: 'Select topic and mode', message: 'Choose both topic and mode before generating the premise.' });
-      return;
-    }
+    if (!sessionId) { notify({ variant: 'info', title: 'Start a session first' }); return; }
     setGeneratingPremise(true);
     try {
-      const response = await generatePracticePremise({ sessionId, topic: selectedTopic, mode: selectedMode });
-      setPremiseResponse(response);
-      setWorkflowStage(safeString(response.workflow_stage, 'Premise generated'));
-      setSessionStatus(normalizeStatus(response.session_status, 'awaiting-opening'));
-      setCurrentRound(safeNumber(response.current_round, 0));
-      notify({ variant: 'success', title: 'Premise generated', message: 'Facts are now locked and the opening editor is enabled.' });
-    } catch (error) {
-      notify({ variant: 'error', title: 'Could not generate premise', message: getApiError(error).message });
-    } finally {
-      setGeneratingPremise(false);
-    }
+      const r = await generatePracticePremise({ sessionId, topic: selectedTopic, mode: selectedMode });
+      setPremiseResponse(r);
+      setWorkflowStage(safeString(r.workflow_stage, 'Premise generated'));
+      setSessionStatus(normalizeStatus(r.session_status, 'awaiting-opening'));
+      setCurrentRound(safeNumber(r.current_round, 0));
+      notify({ variant: 'success', title: 'Premise generated' });
+    } catch (e) {
+      notify({ variant: 'error', title: 'Could not generate premise', message: getApiError(e).message });
+    } finally { setGeneratingPremise(false); }
   };
 
   const handleGenerateOpposing = async (source: 'auto' | 'manual' = 'auto') => {
     if (!sessionId) return;
     setGeneratingOpposing(true);
     try {
-      const response = await generateOpposingCounselResponse(sessionId);
-      setOpposingResponse(response);
-      setOpposingTimestamp(new Date().toISOString());
-      setWorkflowStage(safeString(response.workflow_stage, 'Opposing counsel response'));
-      setSessionStatus(normalizeStatus(response.session_status, 'rebuttal'));
-      notify({
-        variant: 'success',
-        title: source === 'auto' ? 'Opposing counsel response generated' : 'Opposing counsel response refreshed',
-        message: 'The rebuttal editor is now available.',
-      });
-    } catch (error) {
-      notify({ variant: 'error', title: 'Could not generate opposing response', message: getApiError(error).message });
-      throw error;
-    } finally {
-      setGeneratingOpposing(false);
-    }
+      const r = await generateOpposingCounselResponse(sessionId);
+      setOpposingResponse(r); setOpposingTimestamp(new Date().toISOString());
+      setWorkflowStage(safeString(r.workflow_stage, 'Opposing counsel response'));
+      setSessionStatus(normalizeStatus(r.session_status, 'rebuttal'));
+      notify({ variant: 'success', title: source === 'auto' ? 'Opposing response generated' : 'Opposing response refreshed' });
+    } catch (e) {
+      notify({ variant: 'error', title: 'Could not generate opposing response', message: getApiError(e).message });
+      throw e;
+    } finally { setGeneratingOpposing(false); }
   };
 
   const handleSubmitOpening = async () => {
-    if (!sessionId) {
-      notify({ variant: 'info', title: 'Create a session first', message: 'The opening argument needs an active session.' });
-      return;
-    }
-    if (!premiseResponse) {
-      notify({ variant: 'info', title: 'Generate the premise first', message: 'Lock the facts before submitting an opening argument.' });
-      return;
-    }
-    if (!openingArgument.trim()) {
-      notify({ variant: 'info', title: 'Opening argument required', message: 'Write the opening before submitting.' });
-      return;
+    if (!sessionId || !premiseResponse || !openingArgument.trim()) {
+      notify({ variant: 'info', title: 'Opening argument required' }); return;
     }
     setSubmittingOpening(true);
     try {
-      const response = await submitOpeningArgument({ sessionId, content: openingArgument.trim() });
-      setOpeningResponse(response);
-      setCurrentRound(Math.max(1, safeNumber(response.round_number ?? response.current_round, 1)));
-      setWorkflowStage(safeString(response.workflow_stage, 'Opening submitted'));
-      setSessionStatus(normalizeStatus(response.session_status, 'opposing-response'));
+      const r = await submitOpeningArgument({ sessionId, content: openingArgument.trim() });
+      setOpeningResponse(r);
+      setCurrentRound(Math.max(1, safeNumber(r.round_number ?? r.current_round, 1)));
+      setWorkflowStage(safeString(r.workflow_stage, 'Opening submitted'));
+      setSessionStatus(normalizeStatus(r.session_status, 'opposing-response'));
       await handleGenerateOpposing('auto');
-      notify({ variant: 'success', title: 'Opening submitted', message: 'Opposing counsel has responded.' });
-    } catch (error) {
-      notify({ variant: 'error', title: 'Could not submit opening', message: getApiError(error).message });
-    } finally {
-      setSubmittingOpening(false);
-    }
+    } catch (e) {
+      notify({ variant: 'error', title: 'Could not submit opening', message: getApiError(e).message });
+    } finally { setSubmittingOpening(false); }
   };
 
   const handleSubmitRebuttal = async () => {
-    if (!sessionId) {
-      notify({ variant: 'info', title: 'Create a session first', message: 'The rebuttal needs an active session.' });
-      return;
-    }
-    if (!opposingResponse) {
-      notify({ variant: 'info', title: 'Await the opposing response', message: 'The rebuttal editor appears after opposing counsel responds.' });
-      return;
-    }
-    if (!rebuttalArgument.trim()) {
-      notify({ variant: 'info', title: 'Rebuttal required', message: 'Write the rebuttal before submitting.' });
-      return;
+    if (!sessionId || !opposingResponse || !rebuttalArgument.trim()) {
+      notify({ variant: 'info', title: 'Rebuttal required' }); return;
     }
     setSubmittingRebuttal(true);
     try {
-      const response = await submitRebuttalArgument({ sessionId, content: rebuttalArgument.trim() });
-      setRebuttalResponse(response);
-      setCurrentRound(Math.max(2, safeNumber(response.round_number ?? response.current_round, 2)));
-      setWorkflowStage(safeString(response.workflow_stage, 'Rebuttal submitted'));
-      setSessionStatus(normalizeStatus(response.session_status, 'judgment-complete'));
+      const r = await submitRebuttalArgument({ sessionId, content: rebuttalArgument.trim() });
+      setRebuttalResponse(r);
+      setCurrentRound(Math.max(2, safeNumber(r.round_number ?? r.current_round, 2)));
+      setWorkflowStage(safeString(r.workflow_stage, 'Rebuttal submitted'));
+      setSessionStatus(normalizeStatus(r.session_status, 'judgment-complete'));
       await handleGenerateJudge('auto');
-      notify({ variant: 'success', title: 'Rebuttal submitted', message: 'The judge evaluation has been generated.' });
-    } catch (error) {
-      notify({ variant: 'error', title: 'Could not submit rebuttal', message: getApiError(error).message });
-    } finally {
-      setSubmittingRebuttal(false);
-    }
+    } catch (e) {
+      notify({ variant: 'error', title: 'Could not submit rebuttal', message: getApiError(e).message });
+    } finally { setSubmittingRebuttal(false); }
   };
 
   const handleGenerateJudge = async (source: 'auto' | 'manual' = 'manual') => {
     if (!sessionId) return;
     setGeneratingJudge(true);
     try {
-      const response = await generateJudgeEvaluation(sessionId);
-      setJudgeEvaluation(response);
-      setWorkflowStage(safeString(response.workflow_stage, 'Judge evaluation complete'));
-      setSessionStatus(normalizeStatus(response.session_status, 'judgment-complete'));
-      setCurrentRound(Math.max(currentRound, safeNumber(response.current_round, currentRound)));
+      const r = await generateJudgeEvaluation(sessionId);
+      setJudgeEvaluation(r);
+      setWorkflowStage(safeString(r.workflow_stage, 'Judge evaluation complete'));
+      setSessionStatus(normalizeStatus(r.session_status, 'judgment-complete'));
+      setCurrentRound(Math.max(currentRound, safeNumber(r.current_round, currentRound)));
       notify({
         variant: 'success',
-        title: source === 'auto' ? 'Judge evaluation complete' : 'Judge evaluation refreshed',
-        message: `Final score ${Math.round(clamp(safeNumber(response.final_score, 0), 0, 100))}/100.`,
+        title: source === 'auto' ? 'Judge evaluation complete' : 'Evaluation refreshed',
+        message: `Score: ${Math.round(clamp(safeNumber(r.final_score, 0), 0, 100))}/100`,
       });
-    } catch (error) {
-      notify({ variant: 'error', title: 'Could not generate judge evaluation', message: getApiError(error).message });
-      throw error;
-    } finally {
-      setGeneratingJudge(false);
-    }
+    } catch (e) {
+      notify({ variant: 'error', title: 'Could not generate evaluation', message: getApiError(e).message });
+      throw e;
+    } finally { setGeneratingJudge(false); }
   };
 
-  const finalScore = clamp(safeNumber(judgeEvaluation?.final_score, 0), 0, 100);
-  const advocacyScore = clamp(safeNumber(judgeEvaluation?.advocacy_score, 0), 0, 100);
-  const proceduralDiscipline = clamp(safeNumber(judgeEvaluation?.procedural_discipline, 0), 0, 100);
-  const hallucinationPenalty = clamp(safeNumber(judgeEvaluation?.hallucination_penalty, 0), 0, 100);
+  const finalScore       = clamp(safeNumber(judgeEvaluation?.final_score,          0), 0, 100);
+  const advocacyScore    = clamp(safeNumber(judgeEvaluation?.advocacy_score,        0), 0, 100);
+  const proceduralDisc   = clamp(safeNumber(judgeEvaluation?.procedural_discipline, 0), 0, 100);
+  const hallucinationPen = clamp(safeNumber(judgeEvaluation?.hallucination_penalty, 0), 0, 100);
+  const contradictions   = judgeEvaluation?.contradictions_found ?? [];
+  const learningPoints   = judgeEvaluation?.learning_points       ?? [];
 
-  const contradictionCards = judgeEvaluation?.contradictions_found ?? [];
-  const learningPoints = judgeEvaluation?.learning_points ?? [];
-
+  const openingReady   = Boolean(sessionId && premiseResponse);
+  const rebuttalReady  = Boolean(opposingResponse);
   const premiseLoading = loadingMeta || creatingSession || generatingPremise;
-  const rebuttalBusy = submittingRebuttal || generatingJudge;
+  const rebuttalBusy   = submittingRebuttal || generatingJudge;
+
+  const openingFlags  = isRecord(openingResponse?.hallucination_flags)
+    ? Object.entries(openingResponse.hallucination_flags).filter(([, v]) => Boolean(v)).map(([k]) => k) : [];
+  const rebuttalFlags = isRecord(rebuttalResponse?.hallucination_flags)
+    ? Object.entries(rebuttalResponse.hallucination_flags).filter(([, v]) => Boolean(v)).map(([k]) => k) : [];
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    // Full-width two-panel layout — no max-width cap, gutters via px
-    <div className="flex h-[calc(100vh-120px)] min-h-0 flex-col gap-0 overflow-hidden">
+    <div className="flex h-[calc(100vh-64px)] min-h-0 flex-col bg-slate-50 p-3">
 
-      {/* ── Top header bar — full width ── */}
-      <header className="px-6 py-2 backdrop-blur-xl">
-        {!premiseResponse?(
-            <div className="flex flex-col gap-4 lg:flex-col lg:items-center lg:justify-between bg-white py-4 px-4 rounded-3xl border border-amber-200/70  ">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-slate-900 lg:text-3xl">
-              Courtroom workflow — session setup to judicial evaluation
-            </h1>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-3 justify-center">
-            <div className="flex flex-col gap-2 rounded-3xl border border-amber-200/70 bg-white px-4 py-3">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <label className="flex flex-col text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                  <span className="mb-1">Topic</span>
-                  <select
-                    value={selectedTopic}
-                    onChange={(event) => setSelectedTopic(event.target.value)}
-                    disabled={loadingMeta || !topics.length}
-                    className="min-w-[200px] rounded-2xl border border-amber-200/70 bg-white px-3 py-2 text-xs text-slate-900 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <option value="" disabled>
-                      {loadingMeta ? 'Loading topics...' : topics.length ? 'Select topic' : 'No topics available'}
-                    </option>
-                    {topics.map((topic) => (
-                      <option key={topic} value={topic}>
-                        {topic}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+      {/* ── Top bar ───────────────────────────────────────────────────────── */}
+      <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
 
-                <label className="flex flex-col text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                  <span className="mb-1">Mode</span>
-                  <select
-                    value={selectedMode}
-                    onChange={(event) => setSelectedMode(event.target.value)}
-                    disabled={loadingMeta || !modes.length}
-                    className="min-w-[180px] rounded-2xl border border-amber-200/70 bg-white px-3 py-2 text-xs text-slate-900 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <option value="" disabled>
-                      {loadingMeta ? 'Loading modes...' : modes.length ? 'Select mode' : 'No modes available'}
-                    </option>
-                    {modes.map((mode) => (
-                      <option key={mode} value={mode}>
-                        {mode}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleCreateSession}
-              disabled={creatingSession || loadingMeta}
-              className="rounded-full bg-orange-600 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {creatingSession ? 'Creating Session...' : 'Create Session'}
-            </button>
-            <button
-              type="button"
-              onClick={handleGeneratePremise}
-              disabled={!sessionId || premiseLoading || !selectedTopic || !selectedMode}
-              className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {generatingPremise ? 'Generating Premise...' : 'Generate Premise'}
-            </button>
-            <label className="flex items-center gap-2 rounded-full border border-amber-200/70 bg-white px-4 py-3 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" checked={randomize} onChange={(e) => setRandomize(e.target.checked)} className="accent-electric" />
-              Randomize
-            </label>
+          {/* Step progress */}
+          <div className="min-w-0 flex-1">
+            <StepBar activeIndex={workflowIndex} />
           </div>
+
+          {/* Controls */}
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {!sessionId && (
+              <>
+                <select value={selectedTopic} onChange={e => setSelectedTopic(e.target.value)}
+                  disabled={loadingMeta || !topics.length}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:outline-none disabled:opacity-50">
+                  <option value="" disabled>{loadingMeta ? 'Loading…' : 'Select topic'}</option>
+                  {topics.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <select value={selectedMode} onChange={e => setSelectedMode(e.target.value)}
+                  disabled={loadingMeta || !modes.length}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:outline-none disabled:opacity-50">
+                  <option value="" disabled>{loadingMeta ? 'Loading…' : 'Select mode'}</option>
+                  {modes.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-600">
+                  <input type="checkbox" checked={randomize} onChange={e => setRandomize(e.target.checked)} className="accent-orange-500" />
+                  Randomize
+                </label>
+              </>
+            )}
+
+            {sessionId && (
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
+                <span className="font-semibold text-slate-700">{sessionId}</span>
+                {' · '}Round {currentRound}{' · '}{selectedTopic}
+              </span>
+            )}
+
+            <Badge label={sessionStatus} tone={sessionStatus} />
+
+            <button onClick={handleCreateSession} disabled={creatingSession || loadingMeta}
+              className="rounded-full bg-orange-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50">
+              {creatingSession ? 'Creating…' : sessionId ? 'New Session' : 'Create Session'}
+            </button>
+            <button onClick={handleGeneratePremise} disabled={!sessionId || premiseLoading}
+              className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 hover:border-orange-300 hover:bg-orange-50 disabled:opacity-50">
+              {generatingPremise ? 'Generating…' : 'Generate Premise'}
+            </button>
+          </div>
+
         </div>
-          ):(<div></div>)
-        }
-        {premiseResponse ? (
-          <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr] bg-transparent">
-            <div className="rounded-3xl border border-amber-200/70 bg-[#fff7ea] p-5">
-              <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Premise</p>
-              <div className="mt-3 max-h-40 overflow-y-auto text-sm leading-7 text-slate-800">
-                {premiseText || 'Premise will appear after generation.'}
-              </div>
-            </div>
-            <div className="rounded-3xl border border-amber-200/70 bg-white p-5">
-              <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Locked facts</p>
-              <div className="mt-3 max-h-40 space-y-2 overflow-y-auto text-sm leading-6 text-slate-700">
-                {lockedFacts.length ? lockedFacts.map((fact, index) => (
-                  <p key={`${fact}-${index}`} className="rounded-2xl border border-orange-600 bg-amber-100/70 px-3 py-2">
-                    {fact}
+      </div>
+
+      {/* ── Two-panel body ────────────────────────────────────────────────── */}
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+
+        {/* ══ LEFT PANEL — courtroom interaction ══════════════════════════ */}
+        <div className="flex flex-[1.55] flex-col overflow-y-auto border-r border-slate-200 bg-white">
+          <div className="divide-y divide-slate-100">
+
+            {/* Premise */}
+            <section className="space-y-4 px-7 py-6">
+              <SectionLabel>Premise</SectionLabel>
+              {premiseResponse ? (
+                <div className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
+                  <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">
+                    {premiseText || 'Premise narrative will appear here.'}
                   </p>
-                )) : <p className="text-slate-500">No locked facts yet.</p>}
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </header>
-
-      {/* ── Session metrics + stepper — full width ── */}
-      {/* <div className="border-b border-amber-200/70 bg-[#fff3e6]/70 px-6 py-4 backdrop-blur-xl">
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <MetricTile label="Session ID" value={sessionId || 'Pending'} helper="Active session." />
-          <MetricTile label="Topic" value={selectedTopic || 'Pending'} helper="Practice topic." />
-          <MetricTile label="Mode" value={selectedMode || 'Pending'} helper="Generation mode." />
-          <MetricTile label="Workflow Stage" value={workflowStage} helper="Backend workflow state." />
-          <MetricTile label="Current Round" value={formatNumber(currentRound)} helper="Argument loop count." />
-          <div className="rounded-2xl border border-amber-200/70 bg-white p-4">
-            <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">Session Status</p>
-            <div className="mt-3">
-              <StatusBadge label={sessionStatus} tone={sessionStatus} />
-            </div>
-          </div>
-        </div>
-        <StageStepper activeIndex={workflowIndex} />
-      </div> */}
-
-      {/* ── Main two-panel body ── */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
-
-        {/* LEFT PANEL — wider, scrollable, courtroom interaction */}
-        <div className="flex-[1.6] min-h-0 overflow-y-auto border-r border-amber-200/70 px-6 py-6">
-          <div className="space-y-6">
-
-            <div className="sticky top-6 rounded-3xl border border-amber-200/70 bg-white p-6 shadow-sm max-h-[calc(100vh-220px)] overflow-y-auto">
-              <div className="space-y-8">
-                <section className="space-y-4">
-                  <p className="text-xs uppercase tracking-[0.32em] text-slate-800">Student advocate</p>
-                  <label className="block">
-                    <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-800">Opening argument</span>
-                    <textarea
-                      value={openingArgument}
-                      onChange={(e) => setOpeningArgument(e.target.value)}
-                      rows={6}
-                      disabled={!openingReady}
-                      className="min-h-[240px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                      placeholder={openingReady ? 'Frame the issue, state the rule, and anchor your facts.' : 'Generate the premise to unlock the opening editor.'}
-                    />
-                  </label>
-                  <div className="flex flex-col gap-2 text-sm text-slate-600">
-                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(openingArgument.length)} characters</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handleSubmitOpening}
-                      disabled={!openingReady || submittingOpening || generatingOpposing}
-                      className="rounded-full bg-orange-600 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {submittingOpening ? 'Submitting Opening...' : generatingOpposing ? 'Generating Opposing Response...' : 'Submit Opening Argument'}
-                    </button>
-                  </div>
-                  {/* {openingResponse ? (
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Opening record</p>
-                      <p className="whitespace-pre-wrap leading-7">{safeString(openingResponse.content, openingArgument)}</p>
+                  {/* Locked facts — the ONE intentional inner scroll since lists can be long */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Locked Facts</p>
+                    <div className="max-h-52 space-y-1.5 overflow-y-auto pr-1">
+                      {lockedFacts.length
+                        ? lockedFacts.map((f, i) => (
+                          <div key={i} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-6 text-amber-800">
+                            <span className="mr-2 font-bold text-amber-400">#{i + 1}</span>{f}
+                          </div>
+                        ))
+                        : <p className="text-xs text-slate-400">No locked facts yet.</p>}
                     </div>
-                  ) : null} */}
-                </section>
-
-                <div className="border-t border-amber-200/70" />
-
-                <section className="space-y-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Opposing counsel</p>
-                    <button
-                      type="button"
-                      onClick={() => speakText(opposingSpeech)}
-                      disabled={!opposingSpeech}
-                      className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-xs font-semibold text-slate-900 transition hover:border-amber-300/70 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      Listen
-                    </button>
-                  </div>
-                  {opposingResponse ? (
-                    <div className="space-y-3 text-sm text-slate-700">
-                      <p className="whitespace-pre-wrap leading-7">
-                        {typedOpposing || safeString(opposingResponse.content, 'The opposing counsel response will appear here.')}
-                      </p>
-                      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">
-                        {opposingTimestamp ? `Generated ${formatDateTime(opposingTimestamp)}` : 'Pending response'}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => void handleGenerateOpposing('manual').catch(() => undefined)}
-                        disabled={generatingOpposing}
-                        className="rounded-full border border-amber-200/70 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:border-amber-300/70 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {generatingOpposing ? 'Refreshing...' : 'Regenerate response'}
-                      </button>
-                    </div>
-                  ) : openingResponse ? (
-                    <div className="space-y-2 text-sm text-slate-600">
-                      <LoadingSpinner label="Generating opposing counsel response" />
-                      <p>The next stage is generating now.</p>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-600">Submit the opening argument to trigger the opposing response.</p>
-                  )}
-                </section>
-
-                <div className="border-t border-amber-200/70" />
-
-                <section className="space-y-4">
-                  <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Rebuttal</p>
-                  <label className="block">
-                    <span className="mb-2 block text-xs uppercase tracking-[0.3em] text-slate-500">Rebuttal argument</span>
-                    <textarea
-                      value={rebuttalArgument}
-                      onChange={(e) => setRebuttalArgument(e.target.value)}
-                      rows={4}
-                      disabled={!rebuttalReady}
-                      className="min-h-[220px] w-full rounded-2xl border border-amber-200/70 bg-white px-4 py-4 text-sm leading-7 text-slate-900 placeholder:text-slate-500 focus:border-electric/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                      placeholder={rebuttalReady ? 'Target the objection, preserve the record, and respond with discipline.' : 'Wait for the opposing response to unlock rebuttal drafting.'}
-                    />
-                  </label>
-                  <div className="flex flex-col gap-2 text-sm text-slate-600">
-                    <p>Keep it concise, procedural, and grounded in the record.</p>
-                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{formatNumber(rebuttalArgument.length)} characters</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handleSubmitRebuttal}
-                      disabled={!rebuttalReady || submittingRebuttal || generatingJudge}
-                      className="rounded-full border border-amber-200/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-electric/40 hover:bg-amber-100/70 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {submittingRebuttal ? 'Submitting Rebuttal...' : generatingJudge ? 'Generating Judge Evaluation...' : 'Submit Rebuttal'}
-                    </button>
-                  </div>
-                  {/* {rebuttalResponse ? (
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Rebuttal record</p>
-                      <p className="whitespace-pre-wrap leading-7">{safeString(rebuttalResponse.content, rebuttalArgument)}</p>
-                    </div>
-                  ) : null} */}
-                </section>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* RIGHT PANEL — narrower, sticky scrollable, judge analysis */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6">
-          <div className="space-y-4">
-
-            {/* Judge Analysis — live */}
-            {/* <GlassCard className="min-h-[280px]" title="Judge Analysis" subtitle="Live remarks that update as the session progresses">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-mutedGold/25 bg-mutedGold/10 p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-mutedGold/35 bg-mutedGold/15 text-lg font-semibold text-mutedGold">
-                    J
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Judge Panel</p>
-                    <p className="text-xs uppercase tracking-[0.28em] text-mutedGold">Workflow stage: {judgeWorkflowStage}</p>
                   </div>
                 </div>
+              ) : (
+                <Empty text={sessionId ? 'Click "Generate Premise" to lock the factual record.' : 'Create a session to get started.'} />
+              )}
+            </section>
 
-                <div className="space-y-3">
-                  <MetricTile label="Procedural Notes" value={workflowStage} helper="The backend workflow stage rendered in the judge panel." />
-                  <MetricTile label="Judge Commentary" value={liveJudgeCommentary} helper="Live remarks update after each stage." />
-                  <MetricTile label="Burden Reminder" value={burdenReminder} helper="Keep the burden of proof and record discipline explicit." />
-                </div>
+            {/* Opening argument */}
+            <section className="space-y-4 px-7 py-6">
+              <div className="flex items-center justify-between">
+                <SectionLabel>Opening Argument — Student Advocate</SectionLabel>
+                {openingResponse && (
+                  <span className="text-[10px] text-slate-400">
+                    Round {Math.max(1, safeNumber(openingResponse.round_number ?? openingResponse.current_round, 1))}
+                    {openingFlags.length ? ` · ⚠ ${openingFlags.join(', ')}` : ''}
+                  </span>
+                )}
               </div>
-            </GlassCard> */}
 
-            {/* Final Judge Evaluation */}
-            <GlassCard className="min-h-[520px]">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-slate-900">Final Judge Evaluation</p>
-                    <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Each field is displayed separately once the judge endpoint responds</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => speakText(judgeSpeech)}
-                    disabled={!judgeSpeech}
-                    className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-xs font-semibold text-slate-900 transition hover:border-amber-300/70 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Listen
-                  </button>
-                </div>
-                {judgeEvaluation ? (
-                  <>
-                    <JudgeCard title="Burden of Proof Analysis">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{safeString(judgeEvaluation.burden_of_proof_analysis, 'No burden analysis returned.')}</p>
-                    </JudgeCard>
+              <textarea
+                value={openingArgument}
+                onChange={e => setOpeningArgument(e.target.value)}
+                rows={8}
+                disabled={!openingReady}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 placeholder:text-slate-400 focus:border-orange-300 focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder={openingReady
+                  ? 'Frame the issue, state the rule, anchor every point to the locked facts.'
+                  : 'Generate the premise first.'}
+              />
 
-                    <JudgeCard title="Contradictions Found">
-                      {contradictionCards.length ? (
-                        <div className="space-y-2">
-                          {contradictionCards.map((item, index) => (
-                            <div key={`${item}-${index}`} className="rounded-2xl border border-orange-600 bg-amber-100/70 p-4 text-sm leading-7 text-amber-900">
-                              {item}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm leading-7 text-slate-600">No contradictions were reported.</p>
-                      )}
-                    </JudgeCard>
+              <div className="flex items-center justify-between">
+                <button onClick={handleSubmitOpening}
+                  disabled={!openingReady || submittingOpening || generatingOpposing}
+                  className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50">
+                  {submittingOpening ? 'Submitting…' : generatingOpposing ? 'Generating opposing response…' : 'Submit Opening'}
+                </button>
+                <span className="text-xs text-slate-400">{formatNumber(openingArgument.length)} chars</span>
+              </div>
+            </section>
 
-                    <JudgeCard title="Evidentiary Sufficiency">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{safeString(judgeEvaluation.evidentiary_sufficiency, 'No evidentiary sufficiency analysis returned.')}</p>
-                    </JudgeCard>
-
-                    <CircularScoreMeter score={advocacyScore} label="Advocacy Score" />
-
-                    <JudgeCard title="Procedural Discipline">
-                      <ScoreMeter score={proceduralDiscipline} label="Courtroom discipline score" />
-                    </JudgeCard>
-
-                    <JudgeCard title="Hallucination Penalty">
-                      <div className="rounded-2xl border border-orange-600 bg-amber-100/70 p-4">
-                        <p className="text-3xl font-semibold text-amber-800">{Math.round(hallucinationPenalty)}</p>
-                        <p className="mt-2 text-sm text-amber-700/80">Warning indicator for unsupported or speculative content.</p>
-                      </div>
-                    </JudgeCard>
-
-                    <JudgeCard title="Educational Feedback">
-                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{safeString(judgeEvaluation.educational_feedback, 'No educational feedback returned.')}</p>
-                    </JudgeCard>
-
-                    <div className="rounded-3xl border border-mutedGold/30 bg-gradient-to-r from-mutedGold/20 via-mutedGold/10 to-transparent p-5">
-                      <p className="text-xs uppercase tracking-[0.28em] text-mutedGold">Termination Recommendation</p>
-                      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-900">
-                        {safeString(judgeEvaluation.termination_recommendation, 'No termination recommendation returned.')}
-                      </p>
-                    </div>
-
-                    <JudgeCard title="Learning Points">
-                      {learningPoints.length ? (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          {learningPoints.map((point, index) => (
-                            <div key={`${point}-${index}`} className="rounded-2xl border border-amber-200/70 bg-white p-4 text-sm leading-7 text-slate-800">
-                              {point}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm leading-7 text-slate-600">No learning points returned.</p>
-                      )}
-                    </JudgeCard>
-
-                    <ScoreRibbon score={finalScore} />
-
-                    <button
-                      type="button"
-                      onClick={() => void handleGenerateJudge('manual').catch(() => undefined)}
-                      disabled={generatingJudge}
-                      className="rounded-full border border-mutedGold/30 bg-mutedGold/10 px-4 py-2 text-sm font-semibold text-mutedGold transition hover:bg-mutedGold/15 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {generatingJudge ? 'Refreshing Judge Evaluation...' : 'Regenerate Judge Evaluation'}
+            {/* Opposing counsel */}
+            <section className="space-y-4 px-7 py-6">
+              <div className="flex items-center justify-between">
+                <SectionLabel>Opposing Counsel Response</SectionLabel>
+                {opposingResponse && (
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => speak(opposingSpeech, 'opposing')} disabled={!opposingSpeech}
+                      className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-semibold text-slate-600 hover:border-orange-300 hover:text-orange-600 disabled:opacity-40">
+                      ▶ Listen
                     </button>
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <EmptyPanel title="Judge evaluation pending" description="Submit the rebuttal to unlock the final judge analysis and score cards." />
-                    <LoadingSpinner label={rebuttalBusy ? 'Generating judge evaluation' : 'Waiting for session workflow'} />
+                    <button onClick={stopSpeech}
+                      className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-semibold text-slate-500 hover:border-slate-300">
+                      ■ Stop
+                    </button>
                   </div>
                 )}
               </div>
-            </GlassCard>
+
+              {opposingResponse ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-orange-100 bg-orange-50 px-4 py-3">
+                    <p className="whitespace-pre-wrap text-sm leading-7 text-orange-900">
+                      {typedOpposing || safeString(opposingResponse.content, '')}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span>{opposingTimestamp ? `Generated ${formatDateTime(opposingTimestamp)}` : ''}</span>
+                    <button onClick={() => void handleGenerateOpposing('manual').catch(() => undefined)}
+                      disabled={generatingOpposing}
+                      className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-semibold text-slate-600 hover:border-orange-300 hover:text-orange-600 disabled:opacity-40">
+                      {generatingOpposing ? 'Refreshing…' : 'Regenerate'}
+                    </button>
+                  </div>
+                </div>
+              ) : openingResponse ? (
+                <div className="flex items-center gap-3 text-sm text-slate-500">
+                  <LoadingSpinner label="Generating opposing counsel response" />
+                </div>
+              ) : (
+                <Empty text="Submit the opening argument to trigger the opposing response." />
+              )}
+            </section>
+
+            {/* Rebuttal */}
+            <section className="space-y-4 px-7 py-6">
+              <div className="flex items-center justify-between">
+                <SectionLabel>Rebuttal — Student Advocate</SectionLabel>
+                {rebuttalResponse && (
+                  <span className="text-[10px] text-slate-400">
+                    Round {Math.max(2, safeNumber(rebuttalResponse.round_number ?? rebuttalResponse.current_round, 2))}
+                    {rebuttalFlags.length ? ` · ⚠ ${rebuttalFlags.join(', ')}` : ''}
+                  </span>
+                )}
+              </div>
+
+              <textarea
+                value={rebuttalArgument}
+                onChange={e => setRebuttalArgument(e.target.value)}
+                rows={7}
+                disabled={!rebuttalReady}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 placeholder:text-slate-400 focus:border-orange-300 focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder={rebuttalReady
+                  ? 'Target the objection, preserve the record, respond with discipline.'
+                  : 'Awaiting opposing counsel response.'}
+              />
+
+              <div className="flex items-center justify-between">
+                <button onClick={handleSubmitRebuttal}
+                  disabled={!rebuttalReady || submittingRebuttal || generatingJudge}
+                  className="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-800 hover:border-orange-300 hover:bg-orange-50 disabled:opacity-50">
+                  {submittingRebuttal ? 'Submitting…' : generatingJudge ? 'Generating evaluation…' : 'Submit Rebuttal'}
+                </button>
+                <span className="text-xs text-slate-400">{formatNumber(rebuttalArgument.length)} chars</span>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        {/* ══ RIGHT PANEL — judge ══════════════════════════════════════════ */}
+        <div className="flex flex-1 flex-col overflow-y-auto bg-slate-50">
+          <div className="divide-y divide-slate-100">
+
+            {/* Live commentary */}
+            <section className="space-y-3 px-6 py-5">
+              <SectionLabel>Judge — Live Commentary</SectionLabel>
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-amber-500">
+                  Stage · {workflowStage}
+                </p>
+                <p className="text-sm leading-7 text-amber-900">
+                  {judgeEvaluation
+                    ? safeString(judgeEvaluation.educational_feedback, 'Evaluation complete.')
+                    : workflowIndex === 0 ? 'Create the session to establish courtroom context.'
+                    : workflowIndex === 1 ? 'Generate the premise to lock the factual record.'
+                    : workflowIndex === 2 ? 'Draft the opening with issue–rule–application structure.'
+                    : workflowIndex === 3 ? 'Opposing response in flight. Prepare your rebuttal posture.'
+                    : workflowIndex === 4 ? 'Keep the rebuttal disciplined and tied to the record.'
+                    : 'Review the evaluation and consolidate your learning points.'}
+                </p>
+              </div>
+              <p className="text-xs leading-6 text-slate-500">
+                <span className="font-semibold text-slate-600">Burden: </span>
+                {judgeEvaluation
+                  ? safeString(judgeEvaluation.burden_of_proof_analysis, 'Burden analysis complete.')
+                  : 'Keep the burden explicit and tie every assertion to locked facts.'}
+              </p>
+            </section>
+
+            {/* Final evaluation */}
+            <section className="space-y-5 px-6 py-5">
+              <div className="flex items-center justify-between">
+                <SectionLabel>Final Judge Evaluation</SectionLabel>
+                {judgeEvaluation && (
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => speak(judgeSpeech, 'judge')} disabled={!judgeSpeech}
+                      className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-semibold text-slate-600 hover:border-amber-300 hover:text-amber-700 disabled:opacity-40">
+                      ▶ Listen
+                    </button>
+                    <button onClick={stopSpeech}
+                      className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-semibold text-slate-500 hover:border-slate-300">
+                      ■ Stop
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {judgeEvaluation ? (
+                <div className="space-y-5">
+
+                  {/* Score strip */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <ScoreRing score={advocacyScore}  label="Advocacy" />
+                    <ScoreRing score={proceduralDisc} label="Procedure" />
+                  </div>
+
+                  {/* Final score banner */}
+                  <div className="flex items-center justify-between rounded-xl border border-amber-300 bg-gradient-to-r from-amber-50 to-white px-5 py-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Final Score</p>
+                      <p className="mt-0.5 text-4xl font-black text-slate-900">
+                        {Math.round(finalScore)}<span className="text-base font-normal text-slate-400">/100</span>
+                      </p>
+                    </div>
+                    <Badge label="Judgment complete" tone="judgment-complete" />
+                  </div>
+
+                  <Divider />
+
+                  {hallucinationPen > 0 && (
+                    <JSection title="Hallucination Penalty">
+                      <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                        <span className="text-2xl font-black text-red-500">−{Math.round(hallucinationPen)}</span>
+                        <p className="text-xs text-red-700">Unsupported or speculative content detected.</p>
+                      </div>
+                    </JSection>
+                  )}
+
+                  <JSection title="Procedural Discipline">
+                    <ScoreMeter score={proceduralDisc} label="Courtroom discipline score" />
+                  </JSection>
+
+                  <Divider />
+
+                  <JSection title="Burden of Proof Analysis">
+                    <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                      {safeString(judgeEvaluation.burden_of_proof_analysis, 'No analysis returned.')}
+                    </p>
+                  </JSection>
+
+                  <JSection title="Evidentiary Sufficiency">
+                    <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                      {safeString(judgeEvaluation.evidentiary_sufficiency, 'No analysis returned.')}
+                    </p>
+                  </JSection>
+
+                  {contradictions.length > 0 && (
+                    <JSection title="Contradictions Found">
+                      <div className="space-y-1.5">
+                        {contradictions.map((item, i) => (
+                          <div key={i} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{item}</div>
+                        ))}
+                      </div>
+                    </JSection>
+                  )}
+
+                  <Divider />
+
+                  <JSection title="Educational Feedback">
+                    <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                      {safeString(judgeEvaluation.educational_feedback, 'No feedback returned.')}
+                    </p>
+                  </JSection>
+
+                  {safeString(judgeEvaluation.termination_recommendation, '') && (
+                    <JSection title="Termination Recommendation">
+                      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                        {safeString(judgeEvaluation.termination_recommendation, '')}
+                      </p>
+                    </JSection>
+                  )}
+
+                  {learningPoints.length > 0 && (
+                    <JSection title="Learning Points">
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {learningPoints.map((pt, i) => (
+                          <div key={i} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm leading-6 text-slate-700">{pt}</div>
+                        ))}
+                      </div>
+                    </JSection>
+                  )}
+
+                  <button onClick={() => void handleGenerateJudge('manual').catch(() => undefined)}
+                    disabled={generatingJudge}
+                    className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-50">
+                    {generatingJudge ? 'Refreshing…' : 'Regenerate Evaluation'}
+                  </button>
+
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Empty text="Submit the rebuttal to unlock the final judge analysis and scores." />
+                  {rebuttalBusy && <LoadingSpinner label="Generating judge evaluation" />}
+                </div>
+              )}
+            </section>
 
           </div>
         </div>

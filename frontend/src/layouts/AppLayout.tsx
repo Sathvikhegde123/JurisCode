@@ -21,7 +21,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <Navbar />
       <div className="flex w-full">
         <div className="flex min-h-[calc(100vh-73px)] flex-1 flex-col">
-          <main className={classNames('flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-10 page-fade')}>{children ?? <Outlet />}</main>
+          <main className={classNames('flex-1 page-fade')}>{children ?? <Outlet />}</main>
           <Footer />
         </div>
       </div>

@@ -43,7 +43,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       <section className="grid gap-4 xl:grid-cols-[1.6fr_0.8fr]">
         <GlassCard className="bg-gradient-to-br from-[#fff5e2] to-[#f7ecd2]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

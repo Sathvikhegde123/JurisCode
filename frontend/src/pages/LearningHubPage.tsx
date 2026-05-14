@@ -41,7 +41,7 @@ export function LearningHubPage() {
   const learningTone = useMemo(() => (beginnerMode ? 'Beginner mode simplifies the concepts into clear practice goals.' : 'Advanced mode encourages deeper legal analysis and richer critique.'), [beginnerMode]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <GlassCard title="Learning hub" subtitle="Structured legal education for mock-trial practice">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-2">
@@ -67,7 +67,7 @@ export function LearningHubPage() {
                   <p className="text-lg font-semibold text-slate-900">{module.title}</p>
                   <p className="mt-2 text-sm leading-7 text-slate-700">{module.description}</p>
                 </div>
-                <ProgressRing value={module.progress} label="Progress" size={108} />
+                <ProgressRing value={module.progress} label="Progress" size={128} />
               </div>
             </GlassCard>
           </button>

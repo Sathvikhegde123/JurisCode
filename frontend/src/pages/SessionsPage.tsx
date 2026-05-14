@@ -24,7 +24,7 @@ export function SessionsPage() {
   }, [activeFilter, query, sessions]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <GlassCard title="Session history" subtitle="Search your prior mock trials and review the score timeline">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
           <SearchBar value={query} onChange={setQuery} placeholder="Search by topic, mode, or feedback" />

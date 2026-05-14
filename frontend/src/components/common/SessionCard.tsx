@@ -19,7 +19,7 @@ export function SessionCard({ session }: SessionCardProps) {
                 <TopicBadge label={session.topic} active />
                 <span className="text-xs uppercase tracking-[0.25em] text-slate-500">{session.mode}</span>
               </div>
-              <h3 className="mt-3 text-lg font-semibold text-slate-900">{session.premise}</h3>
+              <h3 className="mt-3 text-lg font-semibold text-slate-900">{session.premise.scenario_text}</h3>
               <p className="mt-2 text-sm text-slate-600">{formatShortDate(session.createdAt)}</p>
             </div>
             <span className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-sm text-slate-900">{session.latestScore ? formatPercent(session.latestScore) : 'New'}</span>

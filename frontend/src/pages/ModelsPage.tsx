@@ -37,7 +37,7 @@ export function ModelsPage() {
   const backendStatus = String(status.backend_status ?? health.status ?? 'Unknown');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <section className="grid gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <DashboardStatCard title="Health" value={String(health.status ?? 'unknown')} caption="Backend liveness" tone="emerald" />
         <DashboardStatCard title="Device" value={String(health.device ?? status.device ?? 'unknown')} caption="Runtime device" />
