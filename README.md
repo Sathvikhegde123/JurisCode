@@ -78,6 +78,9 @@ JurisCode/
 │   ├── .env.example          # Copy to .env and edit (never commit .env)
 │   └── README.md             # Detailed API docs, curl examples, SSL notes
 │
+├── scenario-analyzer-backend/ # Citizen Scenario Analyzer (Gemini + SQLite); Legal Clarity Score API — see README inside
+├── frontend/                 # Vite/React app (includes Scenario Analyzer UI)
+│
 ├── all_models/               # Research & training artifacts (committed)
 │   ├── opposing_counsel/     # Notebooks, benchmarks, datasets, adapter exports
 │   ├── premise_model/
@@ -88,6 +91,8 @@ JurisCode/
 ```
 
 **Naming note:** The canonical training and benchmark tree is **`all_models/`** (not `3models/`). Use **`models/`** only if you keep a trimmed export for a fixed inference path in `.env`.
+
+**Citizen Scenario Analyzer:** The folders **`scenario-analyzer-backend/`** and **`frontend/`** implement the separate guided scenario flow (analyze → Socratic chat → optional **Legal Clarity Score**). That score is a **clarity and learning metric** only; it does not measure legal correctness or predict court outcome. Details and API steps are in **`scenario-analyzer-backend/README.md`**.
 
 Intermediate trainer folders named **`checkpoint-*`** under `all_models/` are **ignored by Git** (see `.gitignore`). Final merged or exported adapters you care about should live in a non-checkpoint directory (as in your `qwen-…` export folders).
 

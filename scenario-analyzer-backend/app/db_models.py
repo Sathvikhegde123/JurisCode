@@ -56,3 +56,23 @@ class ChatMessage(Base):
     content: Mapped[str] = mapped_column(Text)
     message_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class ScenarioScore(Base):
+    """Legal Clarity Score (one row per session; upsert on regenerate)."""
+
+    __tablename__ = "scenario_scores"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    total_score: Mapped[int] = mapped_column(Integer, default=0)
+    clarity_level: Mapped[str] = mapped_column(String(64), default="")
+    score_breakdown_json: Mapped[str] = mapped_column(Text, default="{}")
+    strengths_json: Mapped[str] = mapped_column(Text, default="[]")
+    remaining_gaps_json: Mapped[str] = mapped_column(Text, default="[]")
+    summary_feedback: Mapped[str] = mapped_column(Text, default="")
+    teacher_explanation: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )

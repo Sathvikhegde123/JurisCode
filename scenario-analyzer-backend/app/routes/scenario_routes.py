@@ -11,6 +11,7 @@ from app.scenario_analyzer.report_api_formatter import format_full_report_for_cl
 from app.scenario_analyzer.schemas import (
     ChatHistoryResponse,
     FullReportResponse,
+    LegalClarityScoreResponse,
     ScenarioAnalyzeRequest,
     ScenarioAnalyzeResponse,
     ScenarioChatRequest,
@@ -20,6 +21,10 @@ from app.scenario_analyzer.schemas import (
 )
 from app.scenario_analyzer.scenario_chat_service import continue_socratic_chat
 from app.scenario_analyzer.scenario_service import analyze_scenario
+from app.scenario_analyzer.scoring_service import (
+    generate_legal_clarity_score,
+    get_existing_legal_clarity_score,
+)
 from app.scenario_analyzer.source_pack_loader import (
     list_available_source_packs,
     source_packs_dir_exists,
@@ -176,6 +181,80 @@ def get_chat_history(session_id: str):
         if _is_dev():
             raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}") from e
         raise HTTPException(status_code=500, detail="Could not load chat history") from e
+
+
+@router.post(
+    "/score/{session_id}",
+    response_model=LegalClarityScoreResponse,
+    response_model_exclude_none=True,
+)
+def post_generate_legal_clarity_score(session_id: str):
+    """Generate and persist Legal Clarity Score for a session (on demand)."""
+    try:
+        out = generate_legal_clarity_score(session_id)
+        return LegalClarityScoreResponse.model_validate(out)
+    except ValueError as ve:
+        if str(ve) == "session_not_found":
+            raise HTTPException(status_code=404, detail="Session not found") from ve
+        if str(ve) == "report_not_found":
+            raise HTTPException(status_code=404, detail="Session or report not found") from ve
+        raise HTTPException(status_code=400, detail="Invalid request") from ve
+    except ValidationError as ve:
+        tb = traceback.format_exc()
+        logger.error("LegalClarityScoreResponse validation failed:\n%s", tb)
+        if _is_dev():
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "error": True,
+                    "message": "Score generation failed",
+                    "details": str(ve),
+                    "traceback": tb,
+                },
+            )
+        return JSONResponse(status_code=500, content={"error": True, "message": "Score generation failed"})
+    except Exception as e:
+        tb = traceback.format_exc()
+        logger.error("Unhandled error in POST /score:\n%s", tb)
+        if _is_dev():
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "error": True,
+                    "message": "Score generation failed",
+                    "details": f"{type(e).__name__}: {e}",
+                    "traceback": tb,
+                },
+            )
+        return JSONResponse(status_code=500, content={"error": True, "message": "Score generation failed"})
+
+
+@router.get("/score/{session_id}", response_model=None)
+def get_legal_clarity_score(session_id: str):
+    """Return stored Legal Clarity Score, or 404 with score_available=false if not generated yet."""
+    try:
+        if repo.get_session(session_id) is None:
+            raise HTTPException(status_code=404, detail="Session not found")
+        row = get_existing_legal_clarity_score(session_id)
+        if row is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "score_available": False,
+                    "message": "Score has not been generated for this session yet.",
+                },
+            )
+        return LegalClarityScoreResponse.model_validate(row)
+    except HTTPException:
+        raise
+    except ValidationError as ve:
+        logger.error("LegalClarityScoreResponse validation failed on GET /score: %s", ve)
+        raise HTTPException(status_code=500, detail="Stored score is invalid") from ve
+    except Exception as e:
+        logger.exception("Error in GET /score: %s", e)
+        if _is_dev():
+            raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}") from e
+        raise HTTPException(status_code=500, detail="Could not load score") from e
 
 
 @router.get("/sessions", response_model=SessionsListResponse)

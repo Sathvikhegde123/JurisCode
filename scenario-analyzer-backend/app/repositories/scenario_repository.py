@@ -8,7 +8,7 @@ from typing import Any
 
 from sqlalchemy import select
 from app.database import session_scope
-from app.db_models import ChatMessage, ScenarioReport, ScenarioSession
+from app.db_models import ChatMessage, ScenarioReport, ScenarioScore, ScenarioSession
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,87 @@ def get_chat_history(session_id: str, limit: int = 20) -> list[dict[str, Any]]:
                 }
             )
         return out
+
+
+def save_score(session_id: str, score_data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Insert or update Legal Clarity Score for a session.
+    score_data keys: legal_clarity_score, clarity_level, score_breakdown,
+    strengths, remaining_gaps, summary_feedback, teacher_explanation
+    """
+    total = int(score_data.get("legal_clarity_score") or score_data.get("total_score") or 0)
+    clarity = str(score_data.get("clarity_level") or "")
+    breakdown = score_data.get("score_breakdown") or {}
+    strengths = score_data.get("strengths") or []
+    gaps = score_data.get("remaining_gaps") or []
+    summary = str(score_data.get("summary_feedback") or "")
+    teacher = str(
+        score_data.get("teacher_explanation")
+        or "This score measures how clearly the scenario was clarified through the conversation. "
+        "It does not measure legal correctness or predict legal outcome."
+    )
+
+    with session_scope() as db:
+        r = db.execute(select(ScenarioScore).where(ScenarioScore.session_id == session_id))
+        row = r.scalar_one_or_none()
+        if row is None:
+            row = ScenarioScore(
+                session_id=session_id,
+                total_score=total,
+                clarity_level=clarity,
+                score_breakdown_json=json.dumps(breakdown, ensure_ascii=False),
+                strengths_json=json.dumps(strengths, ensure_ascii=False),
+                remaining_gaps_json=json.dumps(gaps, ensure_ascii=False),
+                summary_feedback=summary,
+                teacher_explanation=teacher,
+            )
+            db.add(row)
+        else:
+            row.total_score = total
+            row.clarity_level = clarity
+            row.score_breakdown_json = json.dumps(breakdown, ensure_ascii=False)
+            row.strengths_json = json.dumps(strengths, ensure_ascii=False)
+            row.remaining_gaps_json = json.dumps(gaps, ensure_ascii=False)
+            row.summary_feedback = summary
+            row.teacher_explanation = teacher
+
+    return get_score(session_id) or {}
+
+
+def get_score(session_id: str) -> dict[str, Any] | None:
+    with session_scope() as db:
+        r = db.execute(select(ScenarioScore).where(ScenarioScore.session_id == session_id))
+        obj = r.scalar_one_or_none()
+        if obj is None:
+            return None
+        try:
+            breakdown = json.loads(obj.score_breakdown_json or "{}")
+        except json.JSONDecodeError:
+            breakdown = {}
+        try:
+            strengths = json.loads(obj.strengths_json or "[]")
+        except json.JSONDecodeError:
+            strengths = []
+        try:
+            gaps = json.loads(obj.remaining_gaps_json or "[]")
+        except json.JSONDecodeError:
+            gaps = []
+        if not isinstance(strengths, list):
+            strengths = []
+        if not isinstance(gaps, list):
+            gaps = []
+        return {
+            "session_id": session_id,
+            "legal_clarity_score": int(obj.total_score),
+            "clarity_level": obj.clarity_level or "",
+            "score_breakdown": breakdown if isinstance(breakdown, dict) else {},
+            "strengths": [str(x) for x in strengths if x is not None],
+            "remaining_gaps": [str(x) for x in gaps if x is not None],
+            "summary_feedback": obj.summary_feedback or "",
+            "teacher_explanation": obj.teacher_explanation or "",
+            "created_at": obj.created_at.isoformat() if obj.created_at else "",
+            "updated_at": obj.updated_at.isoformat() if obj.updated_at else "",
+        }
 
 
 def list_recent_sessions(limit: int = 20) -> list[dict[str, Any]]:

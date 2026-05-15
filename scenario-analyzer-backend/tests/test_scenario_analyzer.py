@@ -161,6 +161,66 @@ MOCK_GEMINI_CHAT_REPLY: dict[str, Any] = {
     "disclaimer": DISCLAIMER,
 }
 
+# --- Mock: POST /api/scenario/score Gemini JSON response ---
+MOCK_GEMINI_SCORE_REPLY: dict[str, Any] = {
+    "legal_clarity_score": 0,
+    "clarity_level": "Good Clarity",
+    "score_breakdown": {
+        "issue_understanding": {
+            "score": 20,
+            "max_score": 25,
+            "reason": "Issue category is clear from classification.",
+            "sub_scores": {
+                "issue_category_detected": 15,
+                "specific_sub_issue_detected": 3,
+                "user_confirmed_or_refined_issue": 2,
+            },
+        },
+        "fact_clarity": {
+            "score": 18,
+            "max_score": 30,
+            "reason": "Some timeline and party details emerged.",
+            "sub_scores": {
+                "ownership_or_history_clarified": 5,
+                "timeline_clarified": 4,
+                "possession_clarified": 3,
+                "parties_or_legal_heirs_clarified": 3,
+                "current_dispute_trigger_clarified": 3,
+            },
+        },
+        "document_clarity": {
+            "score": 12,
+            "max_score": 25,
+            "reason": "Agreement mentioned; receipts thin.",
+            "sub_scores": {
+                "core_document_mentioned": 5,
+                "mutation_or_revenue_record_mentioned": 2,
+                "receipt_or_payment_proof_mentioned": 2,
+                "notice_complaint_or_court_papers_mentioned": 2,
+                "missing_documents_identified": 1,
+            },
+        },
+        "risk_clarity": {
+            "score": 10,
+            "max_score": 20,
+            "reason": "Urgency and notice context partially clarified.",
+            "sub_scores": {
+                "urgency_detected": 3,
+                "possession_or_dispossession_risk_clarified": 3,
+                "fraud_forgery_or_mutation_change_clarified": 2,
+                "lawyer_police_or_court_trigger_clarified": 2,
+            },
+        },
+    },
+    "strengths": ["Clear rental relationship described."],
+    "remaining_gaps": ["Exact dates of notices still unclear."],
+    "summary_feedback": "Good progress on facts; more document detail would help clarity.",
+    "teacher_explanation": (
+        "This score measures how clearly the scenario was clarified through the conversation. "
+        "It does not measure legal correctness or predict legal outcome."
+    ),
+}
+
 # --- Example: POST /api/scenario/chat (valid request) ---
 JSON_CHAT_REQUEST_EXAMPLE = (
     lambda session_id: {
@@ -201,6 +261,16 @@ KEYS_CHAT_200 = (
 )
 KEYS_CHAT_HISTORY_200 = ("session_id", "messages")
 KEYS_CHAT_MESSAGE = ("role", "content", "created_at")
+KEYS_SCORE_200 = (
+    "session_id",
+    "legal_clarity_score",
+    "clarity_level",
+    "score_breakdown",
+    "strengths",
+    "remaining_gaps",
+    "summary_feedback",
+    "teacher_explanation",
+)
 
 EXPECTED_SCENARIO_API_PATHS = frozenset(
     {
@@ -209,6 +279,7 @@ EXPECTED_SCENARIO_API_PATHS = frozenset(
         "/api/scenario/chat/{session_id}",
         "/api/scenario/debug/config",
         "/api/scenario/report/{session_id}",
+        "/api/scenario/score/{session_id}",
         "/api/scenario/sessions",
         "/api/scenario/source-packs",
     }
@@ -389,6 +460,7 @@ def test_api_openapi_contains_scenario_paths(client: TestClient):
     assert "/api/scenario/chat" in paths
     assert "/api/scenario/report/{session_id}" in paths
     assert "/api/scenario/analyze" in paths
+    assert "/api/scenario/score/{session_id}" in paths
 
 
 # =============================================================================
@@ -670,3 +742,63 @@ def test_api_chat_history_includes_user_after_post_chat(monkeypatch, client: Tes
     roles = [m["role"] for m in r.json()["messages"]]
     assert "user" in roles
     assert "assistant" in roles
+
+
+# =============================================================================
+# API — Legal Clarity Score
+# =============================================================================
+
+
+def test_api_score_get_404_unknown_session(client: TestClient):
+    assert client.get(f"/api/scenario/score/{uuid.uuid4()}").status_code == 404
+
+
+def test_api_score_get_404_not_generated_yet(client: TestClient, session_from_analyze):
+    r = client.get(f"/api/scenario/score/{session_from_analyze}")
+    assert r.status_code == 404
+    j = r.json()
+    assert j.get("score_available") is False
+    assert "message" in j
+
+
+def test_api_score_post_uses_fallback_without_gemini(monkeypatch, client: TestClient, session_from_analyze):
+    monkeypatch.setattr(app_config.settings, "GEMINI_API_KEY", None)
+    r = client.post(f"/api/scenario/score/{session_from_analyze}")
+    assert r.status_code == 200
+    data = r.json()
+    for k in KEYS_SCORE_200:
+        assert k in data
+    assert data["session_id"] == session_from_analyze
+    assert 0 <= data["legal_clarity_score"] <= 100
+    assert data["score_breakdown"]["issue_understanding"]["max_score"] == 25
+
+
+def test_api_score_post_with_mock_gemini(monkeypatch, client: TestClient, session_from_analyze):
+    monkeypatch.setattr(
+        "app.scenario_analyzer.scoring_service.call_gemini",
+        lambda *_a, **_k: json.dumps(MOCK_GEMINI_SCORE_REPLY),
+    )
+    r = client.post(f"/api/scenario/score/{session_from_analyze}")
+    assert r.status_code == 200
+    data = r.json()
+    # Total must be recomputed from sub-scores (not trust model top-level 0)
+    assert data["legal_clarity_score"] == 15 + 3 + 2 + 5 + 4 + 3 + 3 + 3 + 5 + 2 + 2 + 2 + 1 + 3 + 3 + 2 + 2
+    assert data["clarity_level"] in ("Low Clarity", "Basic Clarity", "Good Clarity", "Strong Clarity")
+    g = client.get(f"/api/scenario/score/{session_from_analyze}")
+    assert g.status_code == 200
+    assert g.json()["legal_clarity_score"] == data["legal_clarity_score"]
+
+
+def test_api_score_post_overwrites_existing(monkeypatch, client: TestClient, session_from_analyze):
+    monkeypatch.setattr(
+        "app.scenario_analyzer.scoring_service.call_gemini",
+        lambda *_a, **_k: json.dumps(MOCK_GEMINI_SCORE_REPLY),
+    )
+    assert client.post(f"/api/scenario/score/{session_from_analyze}").status_code == 200
+    monkeypatch.setattr(
+        "app.scenario_analyzer.scoring_service.call_gemini",
+        lambda *_a, **_k: json.dumps({**MOCK_GEMINI_SCORE_REPLY, "legal_clarity_score": 999}),
+    )
+    r2 = client.post(f"/api/scenario/score/{session_from_analyze}")
+    assert r2.status_code == 200
+    assert r2.json()["legal_clarity_score"] < 200

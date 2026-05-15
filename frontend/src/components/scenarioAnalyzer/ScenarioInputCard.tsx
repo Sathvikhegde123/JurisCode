@@ -1,16 +1,5 @@
 import { GlassCard } from '@/components/common/GlassCard';
 
-const EXAMPLES = [
-  'My landlord is forcing me to leave before the agreement ends.',
-  'My uncle sold ancestral property without informing us.',
-  'Builder delayed my flat possession for two years.',
-  'My brother changed mutation records after my father died.',
-  'I bought land through a registered sale deed but the seller’s brother is disputing it.',
-  'The builder is not giving possession even after taking most of the payment.',
-  'My tenant is refusing to vacate after the lease ended.',
-  'My name was removed from property records without notice.',
-];
-
 type ScenarioInputCardProps = {
   scenario: string;
   onScenarioChange: (v: string) => void;
@@ -39,20 +28,6 @@ export function ScenarioInputCard({
           Scenario Analyzer backend is not reachable. Please make sure it is running on port 8001.
         </div>
       ) : null}
-
-      <div className="mb-5 flex flex-wrap gap-2">
-        <span className="w-full text-xs font-medium uppercase tracking-wide text-slate-500">Examples</span>
-        {EXAMPLES.map((ex) => (
-          <button
-            key={ex}
-            type="button"
-            onClick={() => onScenarioChange(ex)}
-            className="rounded-full border border-amber-200/80 bg-amber-50/60 px-3 py-1.5 text-left text-xs leading-snug text-slate-800 transition hover:border-electric/40 sm:text-[13px]"
-          >
-            {ex}
-          </button>
-        ))}
-      </div>
 
       <form
         className="space-y-5"

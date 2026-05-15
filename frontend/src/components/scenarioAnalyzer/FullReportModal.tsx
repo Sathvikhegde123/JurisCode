@@ -55,20 +55,15 @@ type OfficialSourceRow = {
   source_origin?: string;
   source_type?: string;
   verified?: boolean;
-  section_verification?: string;
 };
 
 function SourceRow({ src }: { src: OfficialSourceRow }) {
-  const pending =
-    src.section_verification ||
-    (src.verified === false ? 'Exact section-level verification pending.' : null);
   return (
     <div className="rounded-xl border border-amber-200/50 bg-amber-50/30 px-3 py-2 text-sm">
       <p className="font-medium text-slate-900">{src.act_name || 'Statute / source'}</p>
       {src.section_reference ? <p className="text-xs text-slate-600">Section: {src.section_reference}</p> : null}
       {src.relevance ? <p className="mt-1 text-slate-800">{src.relevance}</p> : null}
       {src.source_origin ? <p className="mt-1 text-xs text-slate-600">Origin: {src.source_origin}</p> : null}
-      {pending ? <p className="mt-2 text-xs font-medium text-amber-900">{pending}</p> : null}
     </div>
   );
 }

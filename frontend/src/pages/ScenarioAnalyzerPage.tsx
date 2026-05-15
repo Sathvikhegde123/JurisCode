@@ -2,10 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   analyzeScenario,
   continueScenarioChat,
+  generateLegalClarityScore,
   getFullReport,
   getChatHistoryOrNull,
+  getLegalClarityScore,
   listScenarioSessions,
   checkScenarioBackendHealth,
+  type LegalClarityScoreResponse,
   type ScenarioSessionListItem,
 } from '@/api/scenarioAnalyzerApi';
 import { GlassCard } from '@/components/common/GlassCard';
@@ -14,6 +17,7 @@ import { FullReportModal } from '@/components/scenarioAnalyzer/FullReportModal';
 import { ScenarioInputCard } from '@/components/scenarioAnalyzer/ScenarioInputCard';
 import { ScenarioLoadingState } from '@/components/scenarioAnalyzer/ScenarioLoadingState';
 import { ScenarioSessionSidebar } from '@/components/scenarioAnalyzer/ScenarioSessionSidebar';
+import { LegalClarityScoreCard } from '@/components/scenarioAnalyzer/LegalClarityScoreCard';
 import { SocraticChatPanel, type ChatMessageVM } from '@/components/scenarioAnalyzer/SocraticChatPanel';
 import { clearScenarioSessionId, getScenarioSessionId, setScenarioSessionId } from '@/utils/scenarioSession';
 import { deriveCompactFromFullReport, type CompactViewShape, type LawyerWarningShape } from '@/utils/scenarioReportMapping';
@@ -151,6 +155,22 @@ export function ScenarioAnalyzerPage() {
   const [mobileSessionsOpen, setMobileSessionsOpen] = useState(false);
   const [restorePrompt, setRestorePrompt] = useState<ChatMessageVM[] | null>(null);
 
+  const [legalClarityScore, setLegalClarityScore] = useState<LegalClarityScoreResponse | null>(null);
+  const [scoreLoading, setScoreLoading] = useState(false);
+
+  const loadScoreForSession = useCallback(async (sid: string | null) => {
+    if (!sid) {
+      setLegalClarityScore(null);
+      return;
+    }
+    try {
+      const s = await getLegalClarityScore(sid);
+      setLegalClarityScore(s);
+    } catch {
+      setLegalClarityScore(null);
+    }
+  }, []);
+
   const refreshSessions = useCallback(async (): Promise<ScenarioSessionListItem[]> => {
     try {
       const data = await listScenarioSessions();
@@ -179,6 +199,8 @@ export function ScenarioAnalyzerPage() {
     setRestorePrompt(null);
     setModalReportBody(null);
     setReportModalOpen(false);
+    setLegalClarityScore(null);
+    setScoreLoading(false);
   }, []);
 
   const reportDisplay = useMemo(() => {
@@ -190,6 +212,8 @@ export function ScenarioAnalyzerPage() {
     const practicalNextSteps = polishNextSteps(compactView.recommended_next_steps);
     return { situationOverview, keyPoints, practicalNextSteps };
   }, [compactView, scenario]);
+
+  const hasUserChatAnswer = useMemo(() => messages.some((m) => m.role === 'user'), [messages]);
 
   useEffect(() => {
     let cancelled = false;
@@ -255,6 +279,9 @@ export function ScenarioAnalyzerPage() {
             '',
         );
         setMode('report');
+        if (!cancelled) {
+          await loadScoreForSession(sid);
+        }
       } catch (e) {
         const st = typeof e === 'object' && e !== null && 'status' in e ? Number((e as { status: number }).status) : undefined;
         if (st === 404) {
@@ -267,7 +294,7 @@ export function ScenarioAnalyzerPage() {
     return () => {
       cancelled = true;
     };
-  }, [refreshSessions]);
+  }, [refreshSessions, loadScoreForSession]);
 
   useEffect(() => {
     if (!loading) {
@@ -282,6 +309,8 @@ export function ScenarioAnalyzerPage() {
 
   const handleAnalyze = async () => {
     setError('');
+    setLegalClarityScore(null);
+    setScoreLoading(false);
     setLoading(true);
     try {
       const raw = await Promise.all([
@@ -347,6 +376,8 @@ export function ScenarioAnalyzerPage() {
     if (!compactView) {
       return;
     }
+    setLegalClarityScore(null);
+    setScoreLoading(false);
     const pack =
       issueType ||
       sessions.find((x) => x.session_id === sessionId)?.source_pack_used ||
@@ -408,6 +439,24 @@ export function ScenarioAnalyzerPage() {
     }
   };
 
+  const handleGenerateClarityScore = async () => {
+    if (!sessionId) {
+      return;
+    }
+    setError('');
+    setScoreLoading(true);
+    try {
+      const s = await generateLegalClarityScore(sessionId);
+      setLegalClarityScore(s);
+      setBackendOnline(true);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not generate clarity score.';
+      setError(msg);
+    } finally {
+      setScoreLoading(false);
+    }
+  };
+
   const handleSelectSession = async (s: ScenarioSessionListItem) => {
     setError('');
     setScenarioSessionId(s.session_id);
@@ -418,6 +467,7 @@ export function ScenarioAnalyzerPage() {
     if (hist === null) {
       clearScenarioSessionId();
       setSessionId(null);
+      await loadScoreForSession(null);
       return;
     }
     const restored = parseChatHistoryPayload(hist);
@@ -427,6 +477,7 @@ export function ScenarioAnalyzerPage() {
       setIssueType(s.source_pack_used || s.issue_type || '');
       setMessages(restored);
       setMode('chat');
+      await loadScoreForSession(s.session_id);
       return;
     }
 
@@ -442,9 +493,11 @@ export function ScenarioAnalyzerPage() {
       setIssueType(s.source_pack_used || s.issue_type || '');
       setMessages([]);
       setMode('report');
+      await loadScoreForSession(s.session_id);
     } catch {
       setMode('input');
       setError('Could not load this session. Starting fresh is easiest.');
+      await loadScoreForSession(null);
     }
   };
 
@@ -476,6 +529,7 @@ export function ScenarioAnalyzerPage() {
                     setMessages(restorePrompt);
                     setMode('chat');
                     setRestorePrompt(null);
+                    void loadScoreForSession(sessionId);
                   }}
                 >
                   Continue
@@ -532,6 +586,31 @@ export function ScenarioAnalyzerPage() {
               onSend={handleSendChat}
               chatLoading={chatLoading}
             />
+          ) : null}
+
+          {mode === 'chat' && sessionId ? (
+            <div className="rounded-3xl border border-amber-200/70 bg-white/95 p-4 shadow-sm">
+              <button
+                type="button"
+                disabled={scoreLoading || !hasUserChatAnswer}
+                onClick={handleGenerateClarityScore}
+                className="w-full rounded-full bg-electric px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              >
+                Finish & Generate Clarity Score
+              </button>
+              {!hasUserChatAnswer ? (
+                <p className="mt-2 text-xs text-slate-600">
+                  Answer at least one follow-up question before generating clarity score.
+                </p>
+              ) : null}
+              {scoreLoading ? (
+                <p className="mt-3 text-sm text-slate-700">Evaluating conversation clarity...</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {legalClarityScore && sessionId && legalClarityScore.session_id === sessionId ? (
+            <LegalClarityScoreCard score={legalClarityScore} />
           ) : null}
 
           {mode === 'chat' ? (
