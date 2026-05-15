@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from app.schemas.base import BaseSchema
 
 class ArgumentItem(BaseSchema):
@@ -44,8 +44,8 @@ class SessionResponse(BaseSchema):
     updated_at: datetime
 
 class SessionDetail(SessionResponse):
-    premise: Optional[Dict[str, Any]] = None
-    locked_facts: List[str] = []
+    premise: Optional[Dict[str, Any]] = Field(default=None, validation_alias="premise_json")
+    locked_facts: List[str] = Field(default_factory=list, validation_alias="locked_facts_json")
     arguments: List[ArgumentItem] = []
     opposing_responses: List[OpposingItem] = []
     judgments: List[JudgmentItem] = []

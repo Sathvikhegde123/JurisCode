@@ -290,6 +290,6 @@ export async function challengeArgument(payload: { premise: string; userArgument
 }
 
 export async function getPracticeSession(sessionId: string) {
-  const response = await api.get<SessionDetailsResponse>(`/practice/session/${sessionId}`);
+  const response = await api.get<SessionDetailsResponse>(`/api/v1/sessions/${sessionId}`);
   return response.data;
 }

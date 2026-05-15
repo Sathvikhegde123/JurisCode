@@ -9,6 +9,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 import { PracticeArenaPage } from '@/pages/PracticeArenaWorkflowPage';
 import { ScenarioAnalyzerPage } from '@/pages/ScenarioAnalyzerPage';
 import { SessionsPage } from '@/pages/SessionsPage';
+import { PRI } from '@/pages/PRI';
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
       <Route path="/" element={<LandingPage />} />
       <Route element={<AppLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/pri" element={<PRI />} />
         <Route path="/practice" element={<PracticeArenaPage />} />
         <Route path="/challenge" element={<ChallengePage />} />
         <Route path="/sessions" element={<SessionsPage />} />

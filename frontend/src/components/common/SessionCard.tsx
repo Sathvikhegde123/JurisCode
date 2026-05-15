@@ -1,14 +1,75 @@
+import { useEffect, useState } from 'react';
 import { GlassCard } from './GlassCard';
 import { formatShortDate, formatPercent } from '@/utils/format';
 import type { SessionSummary } from '@/services/api';
+import { getPracticeSession } from '@/services/legalApi';
 import { TopicBadge } from './TopicBadge';
 import { ScoreMeter } from './ScoreMeter';
 
+type SessionCardSession = Omit<SessionSummary, 'premise'> & {
+  premise: string | {
+    title?: string;
+    summary?: string;
+    description?: string;
+    text?: string;
+    narrative?: string;
+  };
+};
+
+function getPremiseHeading(premise: SessionCardSession['premise']) {
+  if (typeof premise === 'string') {
+    return premise;
+  }
+
+  return premise.title ?? premise.summary ?? premise.description ?? premise.text ?? premise.narrative ?? 'Premise generated.';
+}
+
 type SessionCardProps = {
-  session: SessionSummary;
+  session: SessionCardSession;
 };
 
 export function SessionCard({ session }: SessionCardProps) {
+  const [premiseTitle, setPremiseTitle] = useState(() => getPremiseHeading(session.premise));
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadSessionTitle() {
+      try {
+        const detail = await getPracticeSession(session.session_id);
+        const premise = detail.premise as
+          | string
+          | {
+              title?: string;
+              summary?: string;
+              description?: string;
+              text?: string;
+              narrative?: string;
+              scenario_text?: string;
+            }
+          | undefined;
+
+        const title = getPremiseHeading(
+          premise ?? session.premise,
+        );
+
+        if (isActive) {
+          setPremiseTitle(title);
+        }
+      } catch {
+        if (isActive) {
+          setPremiseTitle(getPremiseHeading(session.premise));
+        }
+      }
+    }
+
+    void loadSessionTitle();
+
+    return () => {
+      isActive = false;
+    };
+  }, [session.premise, session.session_id]);
+
   return (
     <GlassCard className="overflow-hidden">
       <details className="group">
@@ -19,7 +80,7 @@ export function SessionCard({ session }: SessionCardProps) {
                 <TopicBadge label={session.topic} active />
                 <span className="text-xs uppercase tracking-[0.25em] text-slate-500">{session.mode}</span>
               </div>
-              <h3 className="mt-3 text-lg font-semibold text-slate-900">{session.premise.scenario_text}</h3>
+              <h3 className="mt-3 text-lg font-semibold text-slate-900">{premiseTitle}</h3>
               <p className="mt-2 text-sm text-slate-600">{formatShortDate(session.createdAt)}</p>
             </div>
             <span className="rounded-full border border-amber-200/70 bg-white px-3 py-1 text-sm text-slate-900">{session.latestScore ? formatPercent(session.latestScore) : 'New'}</span>

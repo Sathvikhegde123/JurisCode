@@ -8,6 +8,7 @@ const navItems = [
   { to: '/challenge', label: 'Challenge' },
   { to: '/sessions', label: 'Sessions' },
   { to: '/models', label: 'Models' },
+  { to: '/pri', label: 'PRI' },
   { to: '/learn', label: 'Learn' },
   { to: '/scenario-analyzer', label: 'Citizen Scenario Analyzer' },
 ];

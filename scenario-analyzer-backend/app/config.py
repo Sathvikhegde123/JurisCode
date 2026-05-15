@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     APP_HOST: str = Field(default="127.0.0.1")
     APP_PORT: int = Field(default=8001)
     CORS_ORIGINS: str = Field(
-        default="http://localhost:3000,http://localhost:5173",
+        default="http://localhost:3000,http://localhost:5173,http://localhost:5174",
         description="Comma-separated list of allowed origins",
     )
     DATABASE_URL: str = Field(

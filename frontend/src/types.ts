@@ -120,7 +120,16 @@ export type SessionDetailsResponse = {
   session_id?: string;
   topic?: string;
   mode?: string;
-  premise?: string;
+  premise?:
+    | string
+    | {
+        title?: string;
+        summary?: string;
+        description?: string;
+        text?: string;
+        narrative?: string;
+        scenario_text?: string;
+      };
   history?: Array<JsonRecord>;
   [key: string]: unknown;
 };
