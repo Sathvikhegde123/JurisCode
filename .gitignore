@@ -2,57 +2,127 @@
 .env
 .env.*
 !.env.example
+
 *.key
 *.pem
+*.secret
 secrets.json
 serviceAccountKey.json
-*.secret
 
-# Virtual environments
+# Large trained model directories
+all_models/
+models/
+
+# Python virtual environments
 .venv/
 venv/
 env/
+ENV/
+
 
 # Python cache
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
 
+
 # Jupyter
 .ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
-# Training checkpoints (do not push intermediate saves)
+
+# Dataset generation - large JSON/JSONL datasets
+dataset_generation/*.json
+dataset_generation/*.jsonl
+dataset_generation/**/*.json
+dataset_generation/**/*.jsonl
+
+
+# Training checkpoints
 checkpoint-*/
 **/checkpoint-*/
 checkpoints/
 **/checkpoints/
 
+
 # Training / experiment tooling
 wandb/
+**/wandb/
 runs/
+**/runs/
+mlruns/
+**/mlruns/
 logs/
+**/logs/
+
+
+# Large model files
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.h5
+*.weights
+*.caffemodel
+*.tflite
+
+
+# Cache / temporary
 cache/
+**/cache/
 .cache/
+**/.cache/
 tmp/
+**/tmp/
 temp/
+**/temp/
+*.tmp
+*.log
+
+
+# Frontend / Node
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+coverage/
+**/coverage/
+
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
-*.log
-
-# Future frontend
-node_modules/
-dist/
-build/
-.next/
-.env.local
 
 # IDE
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
 
-# Duplicate local adapter trees under backend (use repo-root models/ or all_models/)
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+
+# Duplicate local adapter tree
 backend/models/
